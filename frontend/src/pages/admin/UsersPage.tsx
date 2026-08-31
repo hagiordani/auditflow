@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { createUser, fetchUsers } from '../../api/auth'
+import { createUser, fetchUsers, updateUser } from '../../api/auth'
 import { getErrorMessage } from '../../api/client'
 import type { Role, User } from '../../api/types'
+import { useAuth } from '../../context/AuthContext'
 
 const ROLES: { value: Role; label: string }[] = [
   { value: 'admin', label: 'Administrador' },
@@ -17,6 +18,7 @@ const ROLE_LABELS: Record<Role, string> = Object.fromEntries(
 const EMPTY_FORM = { full_name: '', email: '', password: '', role: 'auditor' as Role }
 
 export function UsersPage() {
+  const { user: currentUser } = useAuth()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -33,6 +35,16 @@ export function UsersPage() {
   }
 
   useEffect(load, [])
+
+  const toggleActive = async (user: User) => {
+    setError('')
+    try {
+      const updated = await updateUser(user.id, { is_active: !user.is_active })
+      setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)))
+    } catch (err) {
+      setError(getErrorMessage(err))
+    }
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -119,6 +131,7 @@ export function UsersPage() {
                   <th>Correo</th>
                   <th>Rol</th>
                   <th>Estado</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -134,11 +147,26 @@ export function UsersPage() {
                         {u.is_active ? 'Activo' : 'Inactivo'}
                       </span>
                     </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-ghost"
+                        disabled={u.id === currentUser?.id}
+                        title={
+                          u.id === currentUser?.id
+                            ? 'No puedes desactivar tu propia cuenta'
+                            : undefined
+                        }
+                        onClick={() => toggleActive(u)}
+                      >
+                        {u.is_active ? 'Desactivar' : 'Activar'}
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {users.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="muted">
+                    <td colSpan={5} className="muted">
                       Sin usuarios todavía.
                     </td>
                   </tr>

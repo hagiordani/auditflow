@@ -414,3 +414,126 @@ select:focus {
   justify-content: center;
   color: var(--text-muted);
 }
+
+/* ===== Sprint 2: catálogos y matriz ===== */
+.link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.small {
+  font-size: 12px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.btn-danger-ghost {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid #f2c4c4;
+}
+
+.btn-danger-ghost:hover:not(:disabled) {
+  background: var(--danger-soft);
+}
+
+.alert-success {
+  background: var(--success-soft);
+  color: var(--success);
+  border: 1px solid #bfe3cd;
+}
+
+.badge-primary {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.badge-valid {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.badge-invalid {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.badge-available {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.badge-busy {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.badge-unavailable {
+  background: #eef1f5;
+  color: var(--text-muted);
+}
+
+.detail-list {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px 12px;
+  margin: 0;
+}
+
+.detail-list dt {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.detail-list dd {
+  margin: 0;
+  font-size: 14px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.assign-form {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.assign-form h4 {
+  margin: 0 0 8px;
+}
+
+.narrow-card {
+  max-width: 440px;
+}
+
+.metric-row {
+  display: flex;
+  gap: 32px;
+}
+
+.metric-row .stat {
+  margin: 4px 0 0;
+}
+
+.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

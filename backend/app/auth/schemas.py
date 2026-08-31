@@ -36,3 +36,14 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=8)
     role: UserRole
     is_active: bool = True
+
+
+class UserUpdate(BaseModel):
+    full_name: str | None = Field(default=None, min_length=2, max_length=255)
+    role: UserRole | None = None
+    is_active: bool | None = None
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8)

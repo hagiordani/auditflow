@@ -3,11 +3,17 @@ import type { Role } from '../api/types'
 import { useAuth } from '../context/AuthContext'
 
 const NAV_BY_ROLE: Record<Role, { to: string; label: string }[]> = {
-  admin: [{ to: '/admin/users', label: 'Usuarios' }],
-  operations: [],
+  admin: [
+    { to: '/admin/users', label: 'Usuarios' },
+    { to: '/auditors', label: 'Auditores' },
+    { to: '/competencies', label: 'Competencias' },
+  ],
+  operations: [{ to: '/auditors', label: 'Auditores' }],
   auditor: [],
   supervisor: [],
 }
+
+const COMMON_NAV = [{ to: '/profile/security', label: 'Seguridad' }]
 
 const ROLE_LABELS: Record<Role, string> = {
   admin: 'Administrador',
@@ -21,7 +27,7 @@ export function AppLayout() {
   const navigate = useNavigate()
 
   if (!user) return null
-  const links = NAV_BY_ROLE[user.role] ?? []
+  const links = [...(NAV_BY_ROLE[user.role] ?? []), ...COMMON_NAV]
 
   const handleLogout = () => {
     logout()

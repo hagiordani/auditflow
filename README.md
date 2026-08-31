@@ -85,11 +85,25 @@ cd backend
 ## Estado del proyecto
 
 - [x] **Sprint 0** — Scaffolding, Docker, auth JWT, primer admin, login de punta a punta
-- [ ] Sprint 1 — Usuarios y accesos
-- [ ] Sprint 2 — Auditores y competencias
+- [x] **Sprint 1** — Usuarios y accesos: alta/baja, roles, activación/desactivación, cambio de contraseña
+- [x] **Sprint 2** — Auditores, competencias y matriz con niveles y vigencias (bloqueo por vencimiento)
 - [ ] Sprint 3 — Clientes y oportunidades
 - [ ] Sprint 4 — Portal del auditor
 - [ ] Sprint 5 — Selección y asignación
 - [ ] Sprint 6 — Calendario y documentos
 - [ ] Sprint 7 — Dashboard y reportes
 - [ ] Sprint 8 — Seguridad y despliegue
+
+### Funcionalidad actual
+
+**Backend (`/api`)**
+
+- `auth`: login JWT, `/auth/me`, cambio de contraseña
+- `users`: alta, listado, edición y activación/desactivación (solo admin)
+- `auditors`: alta (crea también la cuenta de acceso), listado, perfil propio (`/auditors/me`), edición y matriz de competencias (asignar/quitar)
+- `competencies`: catálogo de normas con alta/edición y activación/desactivación
+- Regla de vigencia: una competencia vencida o revocada se reporta como `is_valid: false` (base de la compatibilidad de oportunidades)
+
+**Frontend**
+
+- Login, dashboard por rol, gestión de usuarios (admin), catálogo de auditores (admin/operaciones) con alta y detalle, matriz de competencias con vigencias, catálogo de competencias (admin), cambio de contraseña

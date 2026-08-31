@@ -28,3 +28,15 @@ export async function createUser(input: CreateUserInput): Promise<User> {
   const { data } = await api.post<User>('/users', input)
   return data
 }
+
+export async function updateUser(
+  id: number,
+  input: { full_name?: string; role?: Role; is_active?: boolean },
+): Promise<User> {
+  const { data } = await api.patch<User>(`/users/${id}`, input)
+  return data
+}
+
+export async function changePassword(current_password: string, new_password: string): Promise<void> {
+  await api.post('/auth/change-password', { current_password, new_password })
+}
