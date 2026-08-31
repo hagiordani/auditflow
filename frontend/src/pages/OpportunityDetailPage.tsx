@@ -8,6 +8,12 @@ import {
 } from '../api/assignments'
 import { getErrorMessage } from '../api/client'
 import {
+  DOCUMENT_TYPES,
+  documentDownloadUrl,
+  fetchDocuments,
+  uploadDocument,
+} from '../api/documents'
+import {
   cancelOpportunity,
   fetchOpportunity,
   fetchOpportunityHistory,
@@ -17,6 +23,7 @@ import {
 import type {
   AuditLogEntry,
   AuditOpportunity,
+  DocumentFile,
   OpportunityStatus,
   StaffApplication,
   StaffAssignment,
@@ -49,6 +56,9 @@ export function OpportunityDetailPage() {
   const [history, setHistory] = useState<AuditLogEntry[]>([])
   const [applications, setApplications] = useState<StaffApplication[]>([])
   const [assignments, setAssignments] = useState<StaffAssignment[]>([])
+  const [documents, setDocuments] = useState<DocumentFile[]>([])
+  const [docType, setDocType] = useState('service_order')
+  const [docFile, setDocFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [actionError, setActionError] = useState('')
@@ -68,6 +78,9 @@ export function OpportunityDetailPage() {
       fetchOpportunityAssignments(id)
         .then(setAssignments)
         .catch(() => setAssignments([]))
+      fetchDocuments('opportunity', id)
+        .then(setDocuments)
+        .catch(() => setDocuments([]))
     }
     Promise.all([fetchOpportunity(id), fetchOpportunityHistory(id)])
       .then(([o, h]) => {
@@ -458,6 +471,97 @@ export function OpportunityDetailPage() {
                       </td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {canEdit && (
+          <section className="card">
+            <h3>Documentos ({documents.length})</h3>
+            <form
+              className="form"
+              onSubmit={async (e) => {
+                e.preventDefault()
+                if (!docFile) return
+                setActionError('')
+                setBusy(true)
+                try {
+                  await uploadDocument(docFile, 'opportunity', opportunity.id, docType)
+                  setDocFile(null)
+                  const updated = await fetchDocuments('opportunity', opportunity.id)
+                  setDocuments(updated)
+                } catch (err) {
+                  setActionError(getErrorMessage(err))
+                } finally {
+                  setBusy(false)
+                }
+              }}
+            >
+              <div className="form-row">
+                <select
+                  aria-label="Tipo de documento"
+                  value={docType}
+                  onChange={(e) => setDocType(e.target.value)}
+                >
+                  {DOCUMENT_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  aria-label="Archivo"
+                  type="file"
+                  required
+                  onChange={(e) => setDocFile(e.target.files?.[0] ?? null)}
+                />
+                <button type="submit" className="btn btn-sm btn-primary" disabled={busy || !docFile}>
+                  Subir
+                </button>
+              </div>
+            </form>
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Archivo</th>
+                    <th>Subido por</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {documents.map((d) => (
+                    <tr key={d.id}>
+                      <td>
+                        <span className="badge badge-primary">
+                          {DOCUMENT_TYPES.find((t) => t.value === d.document_type)?.label ??
+                            d.document_type}
+                        </span>
+                      </td>
+                      <td>{d.file_name}</td>
+                      <td className="muted small">{d.uploader_name || '—'}</td>
+                      <td>
+                        <a
+                          className="btn btn-sm btn-ghost"
+                          href={documentDownloadUrl(d.id)}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Descargar
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                  {documents.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="muted">
+                        Sin documentos. Sube la orden de servicio, agenda o reporte aquí.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

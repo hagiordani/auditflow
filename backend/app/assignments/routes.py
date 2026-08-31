@@ -14,8 +14,10 @@ from app.database import get_db
 from app.models.application import Application
 from app.models.assignment import BLOCKING_STATUSES, Assignment
 from app.models.auditor import AuditorCompetency
+from app.models.availability import AuditorAvailability
 from app.models.opportunity import AuditOpportunity, OpportunityStatus
 from app.models.user import User, UserRole
+from app.notifications.service import notify
 from app.opportunities.routes import _load as _load_opportunity, _to_out
 
 router = APIRouter(tags=["assignments"])
@@ -216,6 +218,26 @@ def assign_auditor(
             ),
         )
 
+    # Prevenir traslape con bloques de indisponibilidad del auditor
+    blocking = (
+        db.query(AuditorAvailability)
+        .filter(
+            AuditorAvailability.auditor_id == auditor.id,
+            AuditorAvailability.start_date <= opportunity.end_date,
+            AuditorAvailability.end_date >= opportunity.start_date,
+        )
+        .first()
+    )
+    if blocking:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "El auditor tiene un bloqueo de fechas: "
+                f"{blocking.notes or blocking.availability_type} "
+                f"({blocking.start_date} → {blocking.end_date})"
+            ),
+        )
+
     # Congelar condiciones: el pago ofrecido y viáticos se copian aquí.
     assignment = Assignment(
         opportunity_id=opportunity_id,
@@ -258,6 +280,23 @@ def assign_auditor(
             else None,
         },
     )
+    # Notificación al auditor asignado (debe confirmar)
+    notify(
+        db,
+        auditor.user_id,
+        f"Fuiste asignado al servicio {opportunity.folio}",
+        f"{opportunity.title} · {opportunity.start_date} → {opportunity.end_date}. "
+        "Confirma tu participación en Mis servicios.",
+        "assignment",
+    )
+    if opportunity.responsible_user_id and opportunity.responsible_user_id != user.id:
+        notify(
+            db,
+            opportunity.responsible_user_id,
+            f"Asignación registrada: {opportunity.folio}",
+            f"{auditor.user.full_name} debe confirmar el servicio {opportunity.title}.",
+            "assignment",
+        )
     db.commit()
     return _staff_assignment_out(db, assignment)
 
@@ -337,6 +376,14 @@ def confirm_assignment(
         previous={"status": previous_status},
         new={"status": opportunity.status, "assignment_id": assignment.id},
     )
+    if opportunity.responsible_user_id:
+        notify(
+            db,
+            opportunity.responsible_user_id,
+            f"Servicio confirmado: {opportunity.folio}",
+            f"{auditor.user.full_name} confirmó el servicio {opportunity.title}.",
+            "assignment",
+        )
     db.commit()
     return _my_assignment_out(db, assignment)
 
@@ -376,6 +423,15 @@ def reject_assignment(
         previous={"status": previous_status},
         new={"status": new_status, "assignment_id": assignment.id},
     )
+    if opportunity.responsible_user_id:
+        notify(
+            db,
+            opportunity.responsible_user_id,
+            f"Asignación rechazada: {opportunity.folio}",
+            f"{auditor.user.full_name} rechazó el servicio {opportunity.title}. "
+            "La oportunidad volvió a revisión.",
+            "assignment",
+        )
     db.commit()
     return _my_assignment_out(db, assignment)
 
@@ -404,6 +460,13 @@ def cancel_assignment(
         opportunity.id,
         previous={"status": previous_status},
         new={"status": new_status, "assignment_id": assignment.id},
+    )
+    notify(
+        db,
+        assignment.auditor.user_id,
+        f"Asignación cancelada: {opportunity.folio}",
+        f"El servicio {opportunity.title} fue cancelado por el equipo de operaciones.",
+        "assignment",
     )
     db.commit()
     return _staff_assignment_out(db, assignment)

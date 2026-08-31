@@ -12,6 +12,7 @@ from app.models.application import Application
 from app.models.auditor import Auditor
 from app.models.opportunity import AuditOpportunity, OpportunityStatus
 from app.models.user import User, UserRole
+from app.notifications.service import notify
 from app.opportunities.routes import _load as load_opportunity
 
 router = APIRouter(prefix="/opportunities", tags=["applications"])
@@ -99,6 +100,18 @@ def apply_to_opportunity(
         opportunity.id,
         new={"auditor_id": auditor.id, "decision": payload.decision},
     )
+    if (
+        opportunity.responsible_user_id
+        and payload.decision == "interested"
+        and opportunity.responsible_user_id != user.id
+    ):
+        notify(
+            db,
+            opportunity.responsible_user_id,
+            f"Nuevo interesado: {opportunity.folio}",
+            f"{auditor.user.full_name} indicó interés en {opportunity.title}.",
+            "application",
+        )
     db.commit()
     return {"message": "Postulación registrada", "decision": payload.decision}
 

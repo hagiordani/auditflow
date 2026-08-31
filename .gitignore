@@ -12,6 +12,9 @@ venv/
 *.db
 *.sqlite3
 
+# Archivos subidos (almacenamiento privado)
+backend/uploads/
+
 # Node
 node_modules/
 dist/

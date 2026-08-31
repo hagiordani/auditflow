@@ -4,8 +4,7 @@ Un auditor es compatible con una oportunidad cuando:
 1. Tiene perfil de auditor y su cuenta está activa.
 2. Tiene TODAS las competencias requeridas, cada una vigente (no vencida ni revocada).
 3. La oportunidad está en un estado abierto y la fecha límite no venció.
-
-La verificación de cruce de fechas se agrega en el Sprint 5 (asignaciones).
+4. No tiene un bloque de indisponibilidad que cruce las fechas del servicio.
 """
 
 from datetime import date
@@ -13,6 +12,7 @@ from datetime import date
 from sqlalchemy.orm import Session
 
 from app.models.auditor import Auditor, AuditorCompetency
+from app.models.availability import AuditorAvailability
 from app.models.opportunity import AuditOpportunity, OpportunityCompetency, OpportunityStatus
 
 # Estados en los que un auditor puede postularse
@@ -54,6 +54,22 @@ def check_compatibility(
         if oc.competency_id not in valid_competency_ids:
             reasons.append(
                 f"No cuentas con la competencia vigente: {oc.competency.name}"
+            )
+
+    # Indisponibilidad declarada que cruza las fechas del servicio
+    if opportunity.start_date and opportunity.end_date:
+        blocking = (
+            db.query(AuditorAvailability)
+            .filter(
+                AuditorAvailability.auditor_id == auditor.id,
+                AuditorAvailability.start_date <= opportunity.end_date,
+                AuditorAvailability.end_date >= opportunity.start_date,
+            )
+            .first()
+        )
+        if blocking:
+            reasons.append(
+                f"Tienes un bloqueo de fechas del {blocking.start_date} al {blocking.end_date}"
             )
 
     return reasons

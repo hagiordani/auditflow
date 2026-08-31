@@ -9,7 +9,10 @@ from app.models.auditor import (
 )
 from app.models.application import APPLICATION_DECISIONS, Application
 from app.models.assignment import ASSIGNMENT_STATUSES, BLOCKING_STATUSES, Assignment
+from app.models.availability import AVAILABILITY_TYPES, AuditorAvailability
 from app.models.client import Client
+from app.models.document import DOCUMENT_TYPES, ENTITY_TYPES, Document
+from app.models.notification import Notification
 from app.models.opportunity import (
     ALLOWED_TRANSITIONS,
     EXPENSE_OPTIONS,
@@ -40,4 +43,10 @@ __all__ = [
     "Assignment",
     "ASSIGNMENT_STATUSES",
     "BLOCKING_STATUSES",
+    "AuditorAvailability",
+    "AVAILABILITY_TYPES",
+    "Document",
+    "DOCUMENT_TYPES",
+    "ENTITY_TYPES",
+    "Notification",
 ]

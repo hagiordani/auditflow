@@ -21,6 +21,9 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:8080"]
 
+    # Almacenamiento local de documentos (en producción usar volumen privado)
+    UPLOAD_DIR: str = "./uploads"
+
     ADMIN_EMAIL: str = "admin@auditflow.local"
     ADMIN_PASSWORD: str = "Admin123!"
     ADMIN_NAME: str = "Administrador"

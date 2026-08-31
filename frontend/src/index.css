@@ -714,3 +714,81 @@ textarea {
   margin-bottom: 4px;
   display: inline-block;
 }
+
+/* ===== Sprint 6: notificaciones ===== */
+.notif-bell {
+  position: relative;
+}
+
+.bell-btn {
+  position: relative;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.bell-btn:hover {
+  background: var(--bg);
+}
+
+.bell-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 1px 5px;
+}
+
+.notif-panel {
+  position: absolute;
+  right: 0;
+  top: 42px;
+  width: 340px;
+  max-height: 420px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.18);
+  z-index: 50;
+}
+
+.notif-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+}
+
+.notif-list {
+  padding: 6px;
+}
+
+.notif-item {
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.notif-item + .notif-item {
+  margin-top: 2px;
+}
+
+.notif-unread {
+  background: var(--primary-soft);
+}
+
+.notif-title {
+  font-weight: 600;
+  font-size: 13px;
+}

@@ -9,9 +9,13 @@ from app.applications.routes import router as applications_router
 from app.assignments.routes import router as assignments_router
 from app.auditors.routes import router as auditors_router
 from app.auth.routes import router as auth_router
+from app.availability.routes import router as availability_router
+from app.calendar.routes import router as calendar_router
 from app.clients.routes import router as clients_router
 from app.competencies.routes import router as competencies_router
 from app.config import get_settings
+from app.documents.routes import router as documents_router
+from app.notifications.routes import router as notifications_router
 from app.opportunities.routes import router as opportunities_router
 from app.seed import seed_admin
 from app.users.routes import router as users_router
@@ -44,6 +48,10 @@ app.include_router(clients_router, prefix="/api")
 app.include_router(opportunities_router, prefix="/api")
 app.include_router(applications_router, prefix="/api")
 app.include_router(assignments_router, prefix="/api")
+app.include_router(availability_router, prefix="/api")
+app.include_router(calendar_router, prefix="/api")
+app.include_router(documents_router, prefix="/api")
+app.include_router(notifications_router, prefix="/api")
 
 
 @app.get("/api/health", tags=["system"])

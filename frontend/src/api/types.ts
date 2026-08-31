@@ -220,3 +220,56 @@ export interface MyAssignment {
   assigned_at: string
   confirmed_at: string | null
 }
+
+export interface AvailabilityBlock {
+  id: number
+  auditor_id: number
+  start_date: string
+  end_date: string
+  availability_type: string
+  notes: string | null
+}
+
+export interface AppNotification {
+  id: number
+  title: string
+  message: string
+  notification_type: string
+  is_read: boolean
+  created_at: string
+}
+
+export interface DocumentFile {
+  id: number
+  entity_type: string
+  entity_id: number
+  document_type: string
+  file_name: string
+  content_type: string | null
+  size_bytes: number | null
+  uploaded_by: number
+  uploader_name: string | null
+  uploaded_at: string
+}
+
+export interface CalendarEvent {
+  type: 'assignment' | 'unavailability'
+  id: number
+  title: string
+  folio: string | null
+  start_date: string
+  end_date: string
+  status: string | null
+}
+
+export interface StaffCalendarEvent {
+  assignment_id: number
+  folio: string
+  title: string
+  auditor_name: string
+  city: string | null
+  state: string | null
+  start_date: string
+  end_date: string
+  status: string
+}

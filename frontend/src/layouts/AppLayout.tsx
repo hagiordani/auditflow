@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import type { Role } from '../api/types'
+import { NotificationBell } from '../components/NotificationBell'
 import { useAuth } from '../context/AuthContext'
 
 const NAV_BY_ROLE: Record<Role, { to: string; label: string }[]> = {
@@ -9,19 +10,26 @@ const NAV_BY_ROLE: Record<Role, { to: string; label: string }[]> = {
     { to: '/competencies', label: 'Competencias' },
     { to: '/clients', label: 'Clientes' },
     { to: '/opportunities', label: 'Oportunidades' },
+    { to: '/calendar', label: 'Calendario' },
   ],
   operations: [
     { to: '/auditors', label: 'Auditores' },
     { to: '/clients', label: 'Clientes' },
     { to: '/opportunities', label: 'Oportunidades' },
+    { to: '/calendar', label: 'Calendario' },
   ],
   auditor: [
     { to: '/auditor/opportunities', label: 'Oportunidades' },
     { to: '/auditor/applications', label: 'Mis postulaciones' },
     { to: '/auditor/assignments', label: 'Mis servicios' },
+    { to: '/auditor/calendar', label: 'Mi calendario' },
+    { to: '/auditor/documents', label: 'Mis documentos' },
     { to: '/auditor/profile', label: 'Mi perfil' },
   ],
-  supervisor: [{ to: '/opportunities', label: 'Oportunidades' }],
+  supervisor: [
+    { to: '/opportunities', label: 'Oportunidades' },
+    { to: '/calendar', label: 'Calendario' },
+  ],
 }
 
 const COMMON_NAV = [{ to: '/profile/security', label: 'Seguridad' }]
@@ -63,6 +71,7 @@ export function AppLayout() {
           ))}
         </nav>
         <div className="userbox">
+          <NotificationBell />
           <div className="user-info">
             <span className="user-name">{user.full_name}</span>
             <span className="user-role">{ROLE_LABELS[user.role]}</span>
