@@ -1,0 +1,39 @@
+"""Endpoints de gestión de usuarios (solo administrador)."""
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
+from app.auth.dependencies import require_roles
+from app.auth.schemas import UserCreate, UserOut
+from app.auth.security import hash_password
+from app.database import get_db
+from app.models.user import User, UserRole
+
+router = APIRouter(prefix="/users", tags=["users"])
+
+
+@router.get("", response_model=list[UserOut])
+def list_users(db: Session = Depends(get_db), _: User = Depends(require_roles(UserRole.admin))):
+    return db.query(User).order_by(User.created_at.desc()).all()
+
+
+@router.post("", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+def create_user(
+    payload: UserCreate,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_roles(UserRole.admin)),
+):
+    email = payload.email.lower().strip()
+    if db.query(User).filter(User.email == email).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El correo ya está registrado")
+    user = User(
+        email=email,
+        full_name=payload.full_name.strip(),
+        password_hash=hash_password(payload.password),
+        role=payload.role,
+        is_active=payload.is_active,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
