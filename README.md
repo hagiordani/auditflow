@@ -89,7 +89,7 @@ cd backend
 - [x] **Sprint 2** — Auditores, competencias y matriz con niveles y vigencias (bloqueo por vencimiento)
 - [x] **Sprint 3** — Clientes y oportunidades: folio automático, 11 estados con transiciones, cancelación con motivo y bitácora completa
 - [x] **Sprint 4** — Portal del auditor: compatibilidad por competencias vigentes, "Me interesa" / "No disponible", auto-transición a "Con interesados", mis postulaciones y mi perfil
-- [ ] Sprint 5 — Selección y asignación
+- [x] **Sprint 5** — Selección y asignación: pago congelado al asignar, confirmación/rechazo del auditor, cancelación por staff y prevención de traslapes de fechas. **Recorrido completo del MVP funcionando**
 - [ ] Sprint 6 — Calendario y documentos
 - [ ] Sprint 7 — Dashboard y reportes
 - [ ] Sprint 8 — Seguridad y despliegue
@@ -105,8 +105,9 @@ cd backend
 - `clients`: catálogo de clientes con contacto y RFC (admin/operaciones editan; supervisor lee)
 - `opportunities`: creación en Borrador con **folio automático** (`AUD-AAAA-NNNNN`), publicación con validaciones (cliente, fechas, competencias), máquina de estados con 11 estados, cancelación con motivo, filtros por estado/cliente/competencia y **historial completo de acciones** (`/history`)
 - `portal del auditor`: `GET /auditors/me/opportunities` (solo oportunidades **compatibles**: competencias vigentes + plazo abierto; **sin datos del cliente**), `POST /opportunities/{id}/apply` ("Me interesa" / "No disponible" con comentarios, actualizable), `GET /auditors/me/applications`, `GET /opportunities/{id}/applications` (staff)
-- Reglas de negocio: competencia vencida/revocada = `is_valid: false` y bloquea visibilidad y postulación; el primer "Me interesa" cambia `published → has_interested`; postulación única por auditor (actualizable); todo queda en bitácora
+- `asignaciones`: `POST /opportunities/{id}/assign` (requiere postulación interesada, competencias vigentes y **sin traslapes de fechas**; el pago y condiciones quedan **congelados** en la asignación), `POST /assignments/{id}/confirm|reject` (el auditor), `POST /assignments/{id}/cancel` (staff, vuelve a revisión), `GET /auditors/me/assignments` y `GET /opportunities/{id}/assignments`
+- Reglas de negocio: competencia vencida/revocada = `is_valid: false` y bloquea visibilidad y postulación; el primer "Me interesa" cambia `published → has_interested`; postulación única por auditor (actualizable); confirmación del auditor pasa a `confirmed`, rechazo/cancelación devuelve a `under_review` o `published`; todo queda en bitácora
 
 **Frontend**
 
-- Login, dashboard por rol, gestión de usuarios (admin), catálogo de auditores (admin/operaciones) con alta y detalle, matriz de competencias con vigencias, catálogo de competencias (admin), clientes (alta + listado), oportunidades (lista con filtro por estado, alta/edición con competencias requeridas, detalle con acciones de publicación/transición/cancelación, sección de interesados e historial), **portal del auditor** (oportunidades disponibles, detalle con decisión y comentarios, mis postulaciones, mi perfil), cambio de contraseña
+- Login, dashboard por rol, gestión de usuarios (admin), catálogo de auditores (admin/operaciones) con alta y detalle, matriz de competencias con vigencias, catálogo de competencias (admin), clientes (alta + listado), oportunidades (lista con filtro por estado, alta/edición con competencias requeridas, detalle con acciones de publicación/transición/cancelación, **asignación desde la lista de interesados**, sección de asignaciones con cancelación e historial), **portal del auditor** (oportunidades disponibles, detalle con decisión y comentarios, mis postulaciones, **mis servicios con confirmar/rechazar y datos del cliente ya asignado**, mi perfil), cambio de contraseña

@@ -8,6 +8,7 @@ from app.models.auditor import (
     Competency,
 )
 from app.models.application import APPLICATION_DECISIONS, Application
+from app.models.assignment import ASSIGNMENT_STATUSES, BLOCKING_STATUSES, Assignment
 from app.models.client import Client
 from app.models.opportunity import (
     ALLOWED_TRANSITIONS,
@@ -36,4 +37,7 @@ __all__ = [
     "AuditLog",
     "Application",
     "APPLICATION_DECISIONS",
+    "Assignment",
+    "ASSIGNMENT_STATUSES",
+    "BLOCKING_STATUSES",
 ]

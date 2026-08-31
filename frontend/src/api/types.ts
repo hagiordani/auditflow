@@ -181,3 +181,42 @@ export interface StaffApplication {
   applied_at: string
   reviewed_at: string | null
 }
+
+export type AssignmentStatus = 'pending' | 'confirmed' | 'rejected' | 'cancelled'
+
+/** Asignación vista por el staff. */
+export interface StaffAssignment {
+  id: number
+  opportunity: AuditOpportunity
+  auditor_id: number
+  auditor_name: string
+  auditor_email: string
+  payment_amount: number | null
+  travel_expenses: string
+  lodging: string
+  transportation: string
+  status: AssignmentStatus
+  assigned_at: string
+  confirmed_at: string | null
+  completed_at: string | null
+}
+
+/** Asignación vista por el auditor (incluye datos del cliente: ya fue asignado). */
+export interface MyAssignment {
+  id: number
+  opportunity: AuditorOpportunity
+  client: {
+    business_name: string
+    commercial_name: string | null
+    address: string | null
+    city: string | null
+    state: string | null
+  } | null
+  payment_amount: number | null
+  travel_expenses: string
+  lodging: string
+  transportation: string
+  status: AssignmentStatus
+  assigned_at: string
+  confirmed_at: string | null
+}

@@ -18,6 +18,7 @@ const NAV_BY_ROLE: Record<Role, { to: string; label: string }[]> = {
   auditor: [
     { to: '/auditor/opportunities', label: 'Oportunidades' },
     { to: '/auditor/applications', label: 'Mis postulaciones' },
+    { to: '/auditor/assignments', label: 'Mis servicios' },
     { to: '/auditor/profile', label: 'Mi perfil' },
   ],
   supervisor: [{ to: '/opportunities', label: 'Oportunidades' }],

@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { fetchApplications } from '../api/applications'
+import {
+  assignAuditor,
+  cancelAssignment,
+  fetchOpportunityAssignments,
+} from '../api/assignments'
 import { getErrorMessage } from '../api/client'
 import {
   cancelOpportunity,
@@ -14,6 +19,7 @@ import type {
   AuditOpportunity,
   OpportunityStatus,
   StaffApplication,
+  StaffAssignment,
 } from '../api/types'
 import { useAuth } from '../context/AuthContext'
 import { formatMoney } from '../utils/format'
@@ -27,6 +33,13 @@ import {
   OPPORTUNITY_STATUS_LABELS,
 } from '../utils/status'
 
+const ASSIGNMENT_LABELS: Record<string, string> = {
+  pending: 'Por confirmar',
+  confirmed: 'Confirmada',
+  rejected: 'Rechazada',
+  cancelled: 'Cancelada',
+}
+
 export function OpportunityDetailPage() {
   const { opportunityId } = useParams()
   const id = Number(opportunityId)
@@ -35,6 +48,7 @@ export function OpportunityDetailPage() {
   const [opportunity, setOpportunity] = useState<AuditOpportunity | null>(null)
   const [history, setHistory] = useState<AuditLogEntry[]>([])
   const [applications, setApplications] = useState<StaffApplication[]>([])
+  const [assignments, setAssignments] = useState<StaffAssignment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [actionError, setActionError] = useState('')
@@ -51,6 +65,9 @@ export function OpportunityDetailPage() {
       fetchApplications(id)
         .then(setApplications)
         .catch(() => setApplications([]))
+      fetchOpportunityAssignments(id)
+        .then(setAssignments)
+        .catch(() => setAssignments([]))
     }
     Promise.all([fetchOpportunity(id), fetchOpportunityHistory(id)])
       .then(([o, h]) => {
@@ -70,6 +87,43 @@ export function OpportunityDetailPage() {
     setBusy(true)
     try {
       await action()
+      load()
+    } catch (err) {
+      setActionError(getErrorMessage(err))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleAssign = async (application: StaffApplication) => {
+    if (!opportunity) return
+    const payment = formatMoney(opportunity.payment_amount)
+    const ok = window.confirm(
+      `¿Asignar el servicio a ${application.auditor.full_name}?\n\n` +
+        `El pago se congela en ${payment} y el auditor deberá confirmar.`,
+    )
+    if (!ok) return
+    setActionError('')
+    setBusy(true)
+    try {
+      await assignAuditor(opportunity.id, {
+        auditor_id: application.auditor.id,
+        payment_amount: opportunity.payment_amount,
+      })
+      load()
+    } catch (err) {
+      setActionError(getErrorMessage(err))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleCancelAssignment = async (assignmentId: number) => {
+    if (!window.confirm('¿Cancelar esta asignación? La oportunidad volverá a revisión.')) return
+    setActionError('')
+    setBusy(true)
+    try {
+      await cancelAssignment(assignmentId)
       load()
     } catch (err) {
       setActionError(getErrorMessage(err))
@@ -292,6 +346,7 @@ export function OpportunityDetailPage() {
                     <th>Respuesta</th>
                     <th>Comentario</th>
                     <th>Fecha</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -316,15 +371,93 @@ export function OpportunityDetailPage() {
                       </td>
                       <td className="muted small">{a.comments || '—'}</td>
                       <td>{formatDateTime(a.applied_at)}</td>
+                      <td>
+                        {a.decision === 'interested' &&
+                          ['published', 'has_interested', 'under_review'].includes(
+                            opportunity.status,
+                          ) && (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-primary"
+                              disabled={busy}
+                              onClick={() => handleAssign(a)}
+                            >
+                              Asignar
+                            </button>
+                          )}
+                      </td>
                     </tr>
                   ))}
                   {applications.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="muted">
+                      <td colSpan={7} className="muted">
                         Sin postulaciones todavía.
                       </td>
                     </tr>
                   )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {canEdit && assignments.length > 0 && (
+          <section className="card">
+            <h3>Asignaciones ({assignments.length})</h3>
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Auditor</th>
+                    <th>Pago congelado</th>
+                    <th>Estado</th>
+                    <th>Asignada</th>
+                    <th>Confirmada</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {assignments.map((asg) => (
+                    <tr key={asg.id}>
+                      <td>
+                        <strong>{asg.auditor_name}</strong>
+                        <div className="muted small">{asg.auditor_email}</div>
+                      </td>
+                      <td>
+                        {formatMoney(asg.payment_amount)}
+                        {asg.travel_expenses === 'included' && (
+                          <span className="muted small"> + viáticos</span>
+                        )}
+                      </td>
+                      <td>
+                        <span
+                          className={`badge ${
+                            asg.status === 'confirmed'
+                              ? 'badge-valid'
+                              : asg.status === 'pending'
+                                ? 'badge-busy'
+                                : 'badge-invalid'
+                          }`}
+                        >
+                          {ASSIGNMENT_LABELS[asg.status] ?? asg.status}
+                        </span>
+                      </td>
+                      <td>{formatDateTime(asg.assigned_at)}</td>
+                      <td>{asg.confirmed_at ? formatDateTime(asg.confirmed_at) : '—'}</td>
+                      <td>
+                        {['pending', 'confirmed'].includes(asg.status) && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-danger-ghost"
+                            disabled={busy}
+                            onClick={() => handleCancelAssignment(asg.id)}
+                          >
+                            Cancelar asignación
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

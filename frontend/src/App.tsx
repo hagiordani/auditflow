@@ -12,6 +12,7 @@ import { SecurityPage } from './pages/SecurityPage'
 import { CompetenciesPage } from './pages/admin/CompetenciesPage'
 import { UsersPage } from './pages/admin/UsersPage'
 import { AuditorApplicationsPage } from './pages/auditor/AuditorApplicationsPage'
+import { AuditorAssignmentsPage } from './pages/auditor/AuditorAssignmentsPage'
 import { AuditorOpportunitiesPage } from './pages/auditor/AuditorOpportunitiesPage'
 import { AuditorOpportunityDetailPage } from './pages/auditor/AuditorOpportunityDetailPage'
 import { AuditorProfilePage } from './pages/auditor/AuditorProfilePage'
@@ -47,6 +48,7 @@ export default function App() {
               element={<AuditorOpportunityDetailPage />}
             />
             <Route path="/auditor/applications" element={<AuditorApplicationsPage />} />
+            <Route path="/auditor/assignments" element={<AuditorAssignmentsPage />} />
             <Route path="/auditor/profile" element={<AuditorProfilePage />} />
           </Route>
 
