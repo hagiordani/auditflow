@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { fetchApplications } from '../api/applications'
 import { getErrorMessage } from '../api/client'
 import {
   cancelOpportunity,
@@ -8,7 +9,12 @@ import {
   publishOpportunity,
   transitionOpportunity,
 } from '../api/opportunities'
-import type { AuditLogEntry, AuditOpportunity, OpportunityStatus } from '../api/types'
+import type {
+  AuditLogEntry,
+  AuditOpportunity,
+  OpportunityStatus,
+  StaffApplication,
+} from '../api/types'
 import { useAuth } from '../context/AuthContext'
 import { formatMoney } from '../utils/format'
 import {
@@ -28,6 +34,7 @@ export function OpportunityDetailPage() {
 
   const [opportunity, setOpportunity] = useState<AuditOpportunity | null>(null)
   const [history, setHistory] = useState<AuditLogEntry[]>([])
+  const [applications, setApplications] = useState<StaffApplication[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [actionError, setActionError] = useState('')
@@ -40,6 +47,11 @@ export function OpportunityDetailPage() {
   const load = useCallback(() => {
     setLoading(true)
     setError('')
+    if (user?.role === 'admin' || user?.role === 'operations') {
+      fetchApplications(id)
+        .then(setApplications)
+        .catch(() => setApplications([]))
+    }
     Promise.all([fetchOpportunity(id), fetchOpportunityHistory(id)])
       .then(([o, h]) => {
         setOpportunity(o)
@@ -47,7 +59,7 @@ export function OpportunityDetailPage() {
       })
       .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, user])
 
   useEffect(() => {
     if (!Number.isNaN(id)) load()
@@ -266,6 +278,58 @@ export function OpportunityDetailPage() {
             </table>
           </div>
         </section>
+
+        {canEdit && (
+          <section className="card">
+            <h3>Interesados ({applications.length})</h3>
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Auditor</th>
+                    <th>Ciudad</th>
+                    <th>Tarifa</th>
+                    <th>Respuesta</th>
+                    <th>Comentario</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {applications.map((a) => (
+                    <tr key={a.id}>
+                      <td>
+                        <strong>{a.auditor.full_name}</strong>
+                        <div className="muted small">{a.auditor.email}</div>
+                      </td>
+                      <td>
+                        {[a.auditor.city, a.auditor.state].filter(Boolean).join(', ') || '—'}
+                      </td>
+                      <td>{formatMoney(a.auditor.daily_rate)}</td>
+                      <td>
+                        <span
+                          className={`badge ${
+                            a.decision === 'interested' ? 'badge-valid' : 'badge-invalid'
+                          }`}
+                        >
+                          {a.decision === 'interested' ? 'Interesado' : 'No disponible'}
+                        </span>
+                      </td>
+                      <td className="muted small">{a.comments || '—'}</td>
+                      <td>{formatDateTime(a.applied_at)}</td>
+                    </tr>
+                  ))}
+                  {applications.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="muted">
+                        Sin postulaciones todavía.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
         <section className="card card-wide">
           <h3>Historial de cambios</h3>

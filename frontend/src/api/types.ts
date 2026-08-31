@@ -124,3 +124,60 @@ export interface AuditLogEntry {
   new_data: Record<string, unknown> | null
   created_at: string
 }
+
+/** Oportunidad vista por el auditor (sin datos del cliente). */
+export interface AuditorOpportunity {
+  id: number
+  folio: string
+  title: string
+  description: string | null
+  audit_type: string | null
+  city: string | null
+  state: string | null
+  address: string | null
+  start_date: string | null
+  end_date: string | null
+  number_of_days: number
+  payment_amount: number | null
+  travel_expenses: string
+  lodging: string
+  transportation: string
+  application_deadline: string | null
+  auditors_required: number
+  status: OpportunityStatus
+  competencies: OpportunityCompetency[]
+  my_application: {
+    id: number
+    decision: ApplicationDecision
+    comments: string | null
+    applied_at: string
+  } | null
+}
+
+export type ApplicationDecision = 'interested' | 'not_available'
+
+export interface MyApplication {
+  id: number
+  decision: ApplicationDecision
+  comments: string | null
+  applied_at: string
+  opportunity: AuditorOpportunity
+}
+
+/** Postulación vista por el staff (incluye datos del auditor). */
+export interface StaffApplication {
+  id: number
+  opportunity_id: number
+  auditor: {
+    id: number
+    full_name: string
+    email: string
+    city: string | null
+    state: string | null
+    daily_rate: number | null
+  }
+  decision: ApplicationDecision
+  comments: string | null
+  applied_at: string
+  reviewed_at: string | null
+}

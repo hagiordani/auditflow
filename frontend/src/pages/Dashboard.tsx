@@ -19,7 +19,7 @@ const ROLE_INFO: Record<Role, { title: string; description: string; next: string
   auditor: {
     title: 'Portal del auditor',
     description: 'Consulta oportunidades compatibles con tu perfil y gestiona tus servicios.',
-    next: ['Oportunidades disponibles', 'Mis postulaciones', 'Mi calendario'],
+    next: ['Asignaciones y calendario', 'Documentos', 'Historial de servicios'],
   },
   supervisor: {
     title: 'Supervisión',
@@ -35,6 +35,11 @@ const QUICK_LINKS: Partial<Record<Role, { to: string; label: string }[]>> = {
     { to: '/competencies', label: 'Competencias' },
   ],
   operations: [{ to: '/auditors', label: 'Auditores' }],
+  auditor: [
+    { to: '/auditor/opportunities', label: 'Oportunidades disponibles' },
+    { to: '/auditor/applications', label: 'Mis postulaciones' },
+    { to: '/auditor/profile', label: 'Mi perfil' },
+  ],
 }
 
 export function Dashboard() {

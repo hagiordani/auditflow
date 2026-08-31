@@ -27,8 +27,11 @@ def create_competency(client, headers, name="ISO 9001"):
         json={"name": name, "description": "Norma de calidad"},
         headers=headers,
     )
-    assert r.status_code == 201, r.text
-    return r.json()
+    if r.status_code == 201:
+        return r.json()
+    # Ya existe (creada por otro archivo de tests): recuperarla del catálogo.
+    catalog = client.get("/api/competencies", headers=headers).json()
+    return next(c for c in catalog if c["name"] == name)
 
 
 def create_auditor(client, headers, email="auditor.s2@test.local", city="Puebla"):

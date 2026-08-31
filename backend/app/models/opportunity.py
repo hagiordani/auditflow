@@ -88,6 +88,9 @@ class AuditOpportunity(Base):
     competencies: Mapped[list["OpportunityCompetency"]] = relationship(
         back_populates="opportunity", cascade="all, delete-orphan"
     )
+    applications: Mapped[list["Application"]] = relationship(  # noqa: F821
+        back_populates="opportunity", cascade="all, delete-orphan"
+    )
 
 
 class OpportunityCompetency(Base):

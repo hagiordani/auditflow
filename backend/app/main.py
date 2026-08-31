@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.applications.routes import router as applications_router
 from app.auditors.routes import router as auditors_router
 from app.auth.routes import router as auth_router
 from app.clients.routes import router as clients_router
@@ -40,6 +41,7 @@ app.include_router(auditors_router, prefix="/api")
 app.include_router(competencies_router, prefix="/api")
 app.include_router(clients_router, prefix="/api")
 app.include_router(opportunities_router, prefix="/api")
+app.include_router(applications_router, prefix="/api")
 
 
 @app.get("/api/health", tags=["system"])

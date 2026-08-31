@@ -1,8 +1,14 @@
-"""Endpoints de auditores y su matriz de competencias."""
+"""Endpoints de auditores, su matriz de competencias y su portal."""
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, selectinload
 
+from app.applications.schemas import (
+    AuditorOpportunityOut,
+    MyApplicationBrief,
+    MyApplicationOut,
+)
+from app.applications.service import OPEN_STATUSES, check_compatibility
 from app.auditors.schemas import (
     AuditorCompetencyCreate,
     AuditorCompetencyOut,
@@ -13,8 +19,12 @@ from app.auditors.schemas import (
 from app.auth.dependencies import get_current_user, require_roles
 from app.auth.security import hash_password
 from app.database import get_db
+from app.models.application import Application
 from app.models.auditor import Auditor, AuditorCompetency, Competency
+from app.models.opportunity import AuditOpportunity, OpportunityCompetency
 from app.models.user import User, UserRole
+from app.opportunities.routes import _load as _load_opportunity
+from app.opportunities.schemas import CompetencyRequirement
 
 router = APIRouter(prefix="/auditors", tags=["auditors"])
 
@@ -233,3 +243,124 @@ def remove_competency(
     db.delete(assignment)
     db.commit()
     return auditor_out(_load_auditor(db, auditor_id))
+
+
+# ---------- Portal del auditor ----------
+
+
+def _require_my_profile(db: Session, user: User) -> Auditor:
+    if user.role != UserRole.auditor:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Esta sección es exclusiva de auditores",
+        )
+    auditor = db.query(Auditor).filter(Auditor.user_id == user.id).first()
+    if auditor is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tu usuario no tiene perfil de auditor. Contacta a operaciones.",
+        )
+    return auditor
+
+
+def _auditor_opportunity_out(
+    db: Session, opportunity: AuditOpportunity, auditor: Auditor
+) -> AuditorOpportunityOut:
+    my_app = (
+        db.query(Application)
+        .filter(
+            Application.opportunity_id == opportunity.id,
+            Application.auditor_id == auditor.id,
+        )
+        .first()
+    )
+    return AuditorOpportunityOut(
+        id=opportunity.id,
+        folio=opportunity.folio,
+        title=opportunity.title,
+        description=opportunity.description,
+        audit_type=opportunity.audit_type,
+        city=opportunity.city,
+        state=opportunity.state,
+        address=opportunity.address,
+        start_date=opportunity.start_date,
+        end_date=opportunity.end_date,
+        number_of_days=opportunity.number_of_days,
+        payment_amount=(
+            float(opportunity.payment_amount) if opportunity.payment_amount is not None else None
+        ),
+        travel_expenses=opportunity.travel_expenses,
+        lodging=opportunity.lodging,
+        transportation=opportunity.transportation,
+        application_deadline=opportunity.application_deadline,
+        auditors_required=opportunity.auditors_required,
+        status=opportunity.status,
+        competencies=[
+            CompetencyRequirement.model_validate(oc) for oc in opportunity.competencies
+        ],
+        my_application=(
+            MyApplicationBrief(
+                id=my_app.id,
+                decision=my_app.decision,
+                comments=my_app.comments,
+                applied_at=my_app.applied_at,
+            )
+            if my_app
+            else None
+        ),
+    )
+
+
+@router.get("/me/opportunities", response_model=list[AuditorOpportunityOut])
+def my_opportunities(
+    db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
+    """Oportunidades visibles para el auditor: solo las compatibles con su perfil."""
+    auditor = _require_my_profile(db, user)
+    open_opportunities = (
+        db.query(AuditOpportunity)
+        .options(
+            selectinload(AuditOpportunity.competencies).selectinload(
+                OpportunityCompetency.competency
+            ),
+        )
+        .filter(AuditOpportunity.status.in_(OPEN_STATUSES))
+        .order_by(AuditOpportunity.created_at.desc())
+        .all()
+    )
+    # Cargar competencias del auditor una sola vez
+    db.query(AuditorCompetency).filter(AuditorCompetency.auditor_id == auditor.id).all()
+    visible = []
+    for opportunity in open_opportunities:
+        if check_compatibility(db, opportunity, auditor):
+            continue  # incompatible: no se muestra
+        visible.append(_auditor_opportunity_out(db, opportunity, auditor))
+    return visible
+
+
+@router.get("/me/applications", response_model=list[MyApplicationOut])
+def my_applications(
+    db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
+    """Postulaciones del auditor con el detalle de cada oportunidad."""
+    auditor = _require_my_profile(db, user)
+    applications = (
+        db.query(Application)
+        .filter(Application.auditor_id == auditor.id)
+        .order_by(Application.applied_at.desc())
+        .all()
+    )
+    result = []
+    for app in applications:
+        opportunity = _load_opportunity(db, app.opportunity_id)
+        opportunity_out = _auditor_opportunity_out(db, opportunity, auditor)
+        result.append(
+            MyApplicationOut(
+                id=app.id,
+                decision=app.decision,
+                comments=app.comments,
+                applied_at=app.applied_at,
+                opportunity=opportunity_out,
+            )
+        )
+    return result

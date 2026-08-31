@@ -7,6 +7,7 @@ from app.models.auditor import (
     AuditorCompetency,
     Competency,
 )
+from app.models.application import APPLICATION_DECISIONS, Application
 from app.models.client import Client
 from app.models.opportunity import (
     ALLOWED_TRANSITIONS,
@@ -33,4 +34,6 @@ __all__ = [
     "ALLOWED_TRANSITIONS",
     "EXPENSE_OPTIONS",
     "AuditLog",
+    "Application",
+    "APPLICATION_DECISIONS",
 ]

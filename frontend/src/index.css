@@ -691,3 +691,26 @@ textarea {
   margin: 18px 0 6px;
   font-size: 14px;
 }
+
+/* ===== Sprint 4: portal del auditor ===== */
+.opp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opp-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.opp-card h3 {
+  margin: 0;
+}
+
+.tag {
+  margin-right: 6px;
+  margin-bottom: 4px;
+  display: inline-block;
+}

@@ -11,6 +11,10 @@ import { OpportunitiesPage } from './pages/OpportunitiesPage'
 import { SecurityPage } from './pages/SecurityPage'
 import { CompetenciesPage } from './pages/admin/CompetenciesPage'
 import { UsersPage } from './pages/admin/UsersPage'
+import { AuditorApplicationsPage } from './pages/auditor/AuditorApplicationsPage'
+import { AuditorOpportunitiesPage } from './pages/auditor/AuditorOpportunitiesPage'
+import { AuditorOpportunityDetailPage } from './pages/auditor/AuditorOpportunityDetailPage'
+import { AuditorProfilePage } from './pages/auditor/AuditorProfilePage'
 import { ProtectedRoute, RoleRoute } from './routes/ProtectedRoute'
 
 export default function App() {
@@ -34,6 +38,16 @@ export default function App() {
           <Route element={<RoleRoute roles={['admin', 'operations', 'supervisor']} />}>
             <Route path="/opportunities" element={<OpportunitiesPage />} />
             <Route path="/opportunities/:opportunityId" element={<OpportunityDetailPage />} />
+          </Route>
+
+          <Route element={<RoleRoute roles={['auditor']} />}>
+            <Route path="/auditor/opportunities" element={<AuditorOpportunitiesPage />} />
+            <Route
+              path="/auditor/opportunities/:opportunityId"
+              element={<AuditorOpportunityDetailPage />}
+            />
+            <Route path="/auditor/applications" element={<AuditorApplicationsPage />} />
+            <Route path="/auditor/profile" element={<AuditorProfilePage />} />
           </Route>
 
           <Route element={<RoleRoute roles={['admin']} />}>
