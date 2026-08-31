@@ -1,30 +1,26 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { fetchAuditors } from '../api/auditors'
-import { fetchUsers } from '../api/auth'
+import { fetchAuditorSummary, fetchSummary, type AuditorSummary, type ReportsSummary } from '../api/reports'
 import type { Role } from '../api/types'
 import { useAuth } from '../context/AuthContext'
+import { formatMoney } from '../utils/format'
 
-const ROLE_INFO: Record<Role, { title: string; description: string; next: string[] }> = {
+const ROLE_INFO: Record<Role, { title: string; description: string }> = {
   admin: {
     title: 'Administración',
     description: 'Acceso total: usuarios, catálogos y configuración de la plataforma.',
-    next: ['Oportunidades de auditoría', 'Asignaciones', 'Reportes e indicadores'],
   },
   operations: {
     title: 'Operaciones',
     description: 'Publica oportunidades de auditoría, revisa interesados y asigna auditores.',
-    next: ['Publicar oportunidades', 'Revisar postulaciones', 'Asignar auditores'],
   },
   auditor: {
     title: 'Portal del auditor',
     description: 'Consulta oportunidades compatibles con tu perfil y gestiona tus servicios.',
-    next: ['Asignaciones y calendario', 'Documentos', 'Historial de servicios'],
   },
   supervisor: {
     title: 'Supervisión',
     description: 'Consulta servicios, indicadores y costos de la operación.',
-    next: ['Indicadores y reportes', 'Servicios por estado', 'Costos de auditorías'],
   },
 }
 
@@ -33,8 +29,13 @@ const QUICK_LINKS: Partial<Record<Role, { to: string; label: string }[]>> = {
     { to: '/admin/users', label: 'Usuarios' },
     { to: '/auditors', label: 'Auditores' },
     { to: '/competencies', label: 'Competencias' },
+    { to: '/reports', label: 'Reportes' },
   ],
-  operations: [{ to: '/auditors', label: 'Auditores' }],
+  operations: [
+    { to: '/auditors', label: 'Auditores' },
+    { to: '/reports', label: 'Reportes' },
+  ],
+  supervisor: [{ to: '/reports', label: 'Reportes' }],
   auditor: [
     { to: '/auditor/opportunities', label: 'Oportunidades disponibles' },
     { to: '/auditor/applications', label: 'Mis postulaciones' },
@@ -42,33 +43,64 @@ const QUICK_LINKS: Partial<Record<Role, { to: string; label: string }[]>> = {
   ],
 }
 
+function Kpi({ value, label }: { value: string | number; label: string }) {
+  return (
+    <div className="kpi-card">
+      <span className="kpi-value">{value}</span>
+      <span className="kpi-label">{label}</span>
+    </div>
+  )
+}
+
 export function Dashboard() {
   const { user } = useAuth()
-  const [userCount, setUserCount] = useState<number | null>(null)
-  const [auditorCount, setAuditorCount] = useState<number | null>(null)
+  const [summary, setSummary] = useState<ReportsSummary | null>(null)
+  const [auditorSummary, setAuditorSummary] = useState<AuditorSummary | null>(null)
 
   useEffect(() => {
-    if (user?.role === 'admin') {
-      fetchUsers()
-        .then((u) => setUserCount(u.length))
-        .catch(() => setUserCount(null))
-    }
-    if (user?.role === 'admin' || user?.role === 'operations') {
-      fetchAuditors()
-        .then((a) => setAuditorCount(a.length))
-        .catch(() => setAuditorCount(null))
+    if (!user) return
+    if (user.role === 'admin' || user.role === 'operations' || user.role === 'supervisor') {
+      fetchSummary()
+        .then(setSummary)
+        .catch(() => setSummary(null))
+    } else if (user.role === 'auditor') {
+      fetchAuditorSummary()
+        .then(setAuditorSummary)
+        .catch(() => setAuditorSummary(null))
     }
   }, [user])
 
   if (!user) return null
   const info = ROLE_INFO[user.role]
   const quickLinks = QUICK_LINKS[user.role] ?? []
-  const isStaff = user.role === 'admin' || user.role === 'operations'
+  const isStaff = ['admin', 'operations', 'supervisor'].includes(user.role)
 
   return (
     <div>
       <h2 className="page-title">Hola, {user.full_name}</h2>
       <p className="page-subtitle">{info.description}</p>
+
+      {isStaff && summary && (
+        <div className="kpi-grid">
+          <Kpi value={summary.total_opportunities} label="Oportunidades" />
+          <Kpi value={summary.active_auditors} label="Auditores activos" />
+          <Kpi value={summary.pending_confirmations} label="Por confirmar" />
+          <Kpi value={summary.confirmed_assignments} label="Confirmados" />
+          <Kpi value={formatMoney(summary.confirmed_cost_total)} label="Costo confirmado" />
+          <Kpi value={summary.invoices_pending} label="Facturas pendientes" />
+          <Kpi value={summary.expiring_certifications_60d} label="Certs. por vencer (60d)" />
+        </div>
+      )}
+
+      {user.role === 'auditor' && auditorSummary && (
+        <div className="kpi-grid">
+          <Kpi value={auditorSummary.available_opportunities} label="Oportunidades disponibles" />
+          <Kpi value={auditorSummary.my_applications} label="Mis postulaciones" />
+          <Kpi value={auditorSummary.upcoming_assignments} label="Próximos servicios" />
+          <Kpi value={auditorSummary.occupied_days} label="Días ocupados" />
+          <Kpi value={auditorSummary.expiring_my_certifications_90d} label="Certs. por vencer (90d)" />
+        </div>
+      )}
 
       <div className="grid">
         <section className="card">
@@ -77,24 +109,6 @@ export function Dashboard() {
             Tu perfil: <strong>{user.email}</strong>
           </p>
         </section>
-
-        {isStaff && (
-          <section className="card">
-            <h3>Equipo</h3>
-            <div className="metric-row">
-              <div>
-                <p className="stat">{auditorCount === null ? '—' : auditorCount}</p>
-                <p className="muted small">Auditores registrados</p>
-              </div>
-              {user.role === 'admin' && (
-                <div>
-                  <p className="stat">{userCount === null ? '—' : userCount}</p>
-                  <p className="muted small">Usuarios totales</p>
-                </div>
-              )}
-            </div>
-          </section>
-        )}
 
         {quickLinks.length > 0 && (
           <section className="card">
@@ -110,11 +124,13 @@ export function Dashboard() {
         )}
 
         <section className="card">
-          <h3>Próximos módulos</h3>
+          <h3>Flujo del negocio</h3>
           <ul className="plain-list">
-            {info.next.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
+            <li>Operaciones publica una oportunidad.</li>
+            <li>El sistema la muestra solo a auditores compatibles.</li>
+            <li>Los auditores indican interés.</li>
+            <li>Operaciones asigna al auditor definitivo.</li>
+            <li>El auditor confirma y las fechas quedan bloqueadas.</li>
           </ul>
         </section>
       </div>
@@ -122,9 +138,9 @@ export function Dashboard() {
       <section className="card card-wide">
         <h3>Estado del proyecto</h3>
         <p>
-          Sprint 0–2 completados: autenticación, roles, usuarios, catálogo de auditores,
-          competencias y matriz con vigencias. Siguiente paso: clientes y oportunidades de
-          auditoría.
+          Sprints 0–7 completados: autenticación, catálogos, oportunidades, portal del auditor,
+          asignaciones, calendario, documentos, notificaciones y reportes. Pendiente: seguridad
+          final y despliegue.
         </p>
       </section>
     </div>

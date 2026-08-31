@@ -91,7 +91,7 @@ cd backend
 - [x] **Sprint 4** — Portal del auditor: compatibilidad por competencias vigentes, "Me interesa" / "No disponible", auto-transición a "Con interesados", mis postulaciones y mi perfil
 - [x] **Sprint 5** — Selección y asignación: pago congelado al asignar, confirmación/rechazo del auditor, cancelación por staff y prevención de traslapes de fechas. **Recorrido completo del MVP funcionando**
 - [x] **Sprint 6** — Calendario, indisponibilidad, documentos y notificaciones in-app
-- [ ] Sprint 7 — Dashboard y reportes
+- [x] **Sprint 7** — Dashboard con indicadores, reportes por cliente/auditor/vencimientos y exportación CSV
 - [ ] Sprint 8 — Seguridad y despliegue
 
 ### Funcionalidad actual

@@ -11,12 +11,14 @@ const NAV_BY_ROLE: Record<Role, { to: string; label: string }[]> = {
     { to: '/clients', label: 'Clientes' },
     { to: '/opportunities', label: 'Oportunidades' },
     { to: '/calendar', label: 'Calendario' },
+    { to: '/reports', label: 'Reportes' },
   ],
   operations: [
     { to: '/auditors', label: 'Auditores' },
     { to: '/clients', label: 'Clientes' },
     { to: '/opportunities', label: 'Oportunidades' },
     { to: '/calendar', label: 'Calendario' },
+    { to: '/reports', label: 'Reportes' },
   ],
   auditor: [
     { to: '/auditor/opportunities', label: 'Oportunidades' },
@@ -29,6 +31,7 @@ const NAV_BY_ROLE: Record<Role, { to: string; label: string }[]> = {
   supervisor: [
     { to: '/opportunities', label: 'Oportunidades' },
     { to: '/calendar', label: 'Calendario' },
+    { to: '/reports', label: 'Reportes' },
   ],
 }
 

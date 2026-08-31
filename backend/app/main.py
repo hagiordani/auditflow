@@ -17,6 +17,7 @@ from app.config import get_settings
 from app.documents.routes import router as documents_router
 from app.notifications.routes import router as notifications_router
 from app.opportunities.routes import router as opportunities_router
+from app.reports.routes import router as reports_router
 from app.seed import seed_admin
 from app.users.routes import router as users_router
 
@@ -52,6 +53,7 @@ app.include_router(availability_router, prefix="/api")
 app.include_router(calendar_router, prefix="/api")
 app.include_router(documents_router, prefix="/api")
 app.include_router(notifications_router, prefix="/api")
+app.include_router(reports_router, prefix="/api")
 
 
 @app.get("/api/health", tags=["system"])

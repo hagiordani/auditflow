@@ -8,6 +8,7 @@ import { LoginPage } from './pages/Login'
 import { OpportunityDetailPage } from './pages/OpportunityDetailPage'
 import { OpportunityFormPage } from './pages/OpportunityFormPage'
 import { OpportunitiesPage } from './pages/OpportunitiesPage'
+import { ReportsPage } from './pages/ReportsPage'
 import { SecurityPage } from './pages/SecurityPage'
 import { StaffCalendarPage } from './pages/StaffCalendarPage'
 import { CompetenciesPage } from './pages/admin/CompetenciesPage'
@@ -43,6 +44,7 @@ export default function App() {
             <Route path="/opportunities" element={<OpportunitiesPage />} />
             <Route path="/opportunities/:opportunityId" element={<OpportunityDetailPage />} />
             <Route path="/calendar" element={<StaffCalendarPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
           </Route>
 
           <Route element={<RoleRoute roles={['auditor']} />}>

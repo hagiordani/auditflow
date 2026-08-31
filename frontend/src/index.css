@@ -136,6 +136,7 @@ body {
   display: flex;
   gap: 4px;
   flex: 1;
+  flex-wrap: wrap;
 }
 
 .topnav a {
@@ -791,4 +792,34 @@ textarea {
 .notif-title {
   font-weight: 600;
   font-size: 13px;
+}
+
+/* ===== Sprint 7: KPIs y reportes ===== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kpi-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: var(--text-muted);
 }
