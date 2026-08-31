@@ -1,11 +1,12 @@
 """Endpoints de autenticación."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_user
 from app.auth.schemas import ChangePasswordRequest, LoginRequest, TokenResponse, UserOut
 from app.auth.security import create_access_token, hash_password, verify_password
+from app.core.rate_limit import login_limiter
 from app.database import get_db
 from app.models.user import User
 
@@ -13,10 +14,14 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(payload: LoginRequest, db: Session = Depends(get_db)):
+def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)):
+    ip = request.client.host if request.client else "unknown"
+    login_limiter.check(ip)
+
     email = payload.email.lower().strip()
     user = db.query(User).filter(User.email == email).first()
     if user is None or not verify_password(payload.password, user.password_hash):
+        login_limiter.record_failure(ip)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales inválidas",
@@ -26,6 +31,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Usuario desactivado. Contacta al administrador.",
         )
+    login_limiter.record_success(ip)
     return TokenResponse(access_token=create_access_token(user.id), user=UserOut.model_validate(user))
 
 

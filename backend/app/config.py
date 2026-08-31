@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     APP_VERSION: str = "0.1.0"
     DEBUG: bool = False
 
+    # development | staging | production
+    ENVIRONMENT: str = "development"
+
     SECRET_KEY: str = "cambiar-en-produccion-por-clave-larga-y-aleatoria"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 480
 

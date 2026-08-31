@@ -24,6 +24,16 @@ def setup_db():
     Base.metadata.drop_all(bind=engine)
 
 
+@pytest.fixture(autouse=True)
+def _reset_rate_limiter():
+    """Aisla el rate-limiter entre tests (todos comparten la IP 'testclient')."""
+    from app.core.rate_limit import login_limiter
+
+    login_limiter.reset()
+    yield
+    login_limiter.reset()
+
+
 @pytest.fixture()
 def client():
     # El contexto activa el lifespan (seed del admin).

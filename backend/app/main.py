@@ -24,8 +24,25 @@ from app.users.routes import router as users_router
 settings = get_settings()
 
 
+def _validate_security_config() -> None:
+    """En staging/producción, la clave JWT debe ser fuerte y no la de ejemplo."""
+    default_key = "cambiar-en-produccion-por-clave-larga-y-aleatoria"
+    if settings.ENVIRONMENT in ("staging", "production"):
+        if settings.SECRET_KEY == default_key or len(settings.SECRET_KEY) < 32:
+            raise RuntimeError(
+                "SECRET_KEY insegura: define una clave aleatoria de al menos 32 caracteres "
+                f"para el entorno '{settings.ENVIRONMENT}'"
+            )
+        if settings.ADMIN_PASSWORD == "Admin123!":
+            raise RuntimeError(
+                "ADMIN_PASSWORD insegura: cambia la contraseña del administrador inicial "
+                f"para el entorno '{settings.ENVIRONMENT}'"
+            )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    _validate_security_config()
     # Las tablas las crea Alembic; aquí solo garantizamos el primer admin.
     seed_admin()
     yield
@@ -40,6 +57,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    return response
 
 app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")

@@ -4,7 +4,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.core.validators import Email
+from app.core.validators import Email, Password
 from app.models.user import UserRole
 
 
@@ -33,7 +33,7 @@ class TokenResponse(BaseModel):
 class UserCreate(BaseModel):
     email: Email
     full_name: str = Field(min_length=2, max_length=255)
-    password: str = Field(min_length=8)
+    password: Password
     role: UserRole
     is_active: bool = True
 
@@ -46,4 +46,4 @@ class UserUpdate(BaseModel):
 
 class ChangePasswordRequest(BaseModel):
     current_password: str
-    new_password: str = Field(min_length=8)
+    new_password: Password

@@ -4,7 +4,7 @@ from datetime import date
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.core.validators import Email
+from app.core.validators import Email, Password
 from app.models.auditor import AVAILABILITY_STATUSES, COMPETENCY_LEVELS
 
 
@@ -52,7 +52,7 @@ class AuditorCreate(BaseModel):
 
     email: Email
     full_name: str = Field(min_length=2, max_length=255)
-    password: str = Field(min_length=8)
+    password: Password
     phone: str | None = Field(default=None, max_length=30)
     city: str | None = Field(default=None, max_length=120)
     state: str | None = Field(default=None, max_length=120)

@@ -20,3 +20,15 @@ def normalize_email(value: str) -> str:
 
 
 Email = Annotated[str, AfterValidator(normalize_email)]
+
+
+def validate_password_strength(value: str) -> str:
+    """Política: mínimo 8 caracteres, con letras y números."""
+    if len(value) < 8:
+        raise ValueError("La contraseña debe tener al menos 8 caracteres")
+    if not re.search(r"[A-Za-z]", value) or not re.search(r"\d", value):
+        raise ValueError("La contraseña debe incluir letras y números")
+    return value
+
+
+Password = Annotated[str, AfterValidator(validate_password_strength)]
