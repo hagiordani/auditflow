@@ -7,15 +7,17 @@ import { useAuth } from '../../context/AuthContext'
 const ROLES: { value: Role; label: string }[] = [
   { value: 'admin', label: 'Administrador' },
   { value: 'operations', label: 'Operaciones' },
-  { value: 'auditor', label: 'Auditor' },
   { value: 'supervisor', label: 'Supervisor' },
 ]
 
-const ROLE_LABELS: Record<Role, string> = Object.fromEntries(
-  ROLES.map((r) => [r.value, r.label]),
-) as Record<Role, string>
+const ROLE_LABELS: Record<Role, string> = {
+  admin: 'Administrador',
+  operations: 'Operaciones',
+  auditor: 'Auditor',
+  supervisor: 'Supervisor',
+}
 
-const EMPTY_FORM = { full_name: '', email: '', password: '', role: 'auditor' as Role }
+const EMPTY_FORM = { full_name: '', email: '', password: '', role: 'operations' as Role }
 
 export function UsersPage() {
   const { user: currentUser } = useAuth()
@@ -64,7 +66,11 @@ export function UsersPage() {
   return (
     <div>
       <h2 className="page-title">Usuarios</h2>
-      <p className="page-subtitle">Cuentas de acceso a la plataforma y sus roles.</p>
+      <p className="page-subtitle">Cuentas de acceso del equipo interno (administrador, operaciones, supervisor).</p>
+      <div className="alert alert-info">
+        Los <strong>auditores</strong> se crean en la sección <strong>Auditores</strong> para
+        generar a la vez su cuenta de acceso y su perfil con competencias.
+      </div>
 
       <div className="grid grid-2col">
         <section className="card">

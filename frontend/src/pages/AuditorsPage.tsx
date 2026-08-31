@@ -26,6 +26,7 @@ export function AuditorsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [form, setForm] = useState(EMPTY_FORM)
+  const [linkExisting, setLinkExisting] = useState(false)
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -47,7 +48,7 @@ export function AuditorsPage() {
       const created = await createAuditor({
         email: form.email.trim(),
         full_name: form.full_name.trim(),
-        password: form.password,
+        password: linkExisting ? null : form.password,
         phone: form.phone.trim() || null,
         city: form.city.trim() || null,
         state: form.state.trim() || null,
@@ -55,6 +56,7 @@ export function AuditorsPage() {
       })
       setAuditors((prev) => [...prev, created])
       setForm(EMPTY_FORM)
+      setLinkExisting(false)
     } catch (err) {
       setFormError(getErrorMessage(err))
     } finally {
@@ -68,7 +70,8 @@ export function AuditorsPage() {
     <div>
       <h2 className="page-title">Auditores</h2>
       <p className="page-subtitle">
-        Catálogo de auditores externos. Al dar de alta se crea también su cuenta de acceso.
+        Catálogo de auditores externos. Al dar de alta se crea también su cuenta de acceso
+        (o se vincula a una cuenta ya existente).
       </p>
 
       <div className="grid grid-2col">
@@ -93,15 +96,28 @@ export function AuditorsPage() {
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
 
-            <label htmlFor="a-password">Contraseña de acceso (mín. 8 caracteres)</label>
-            <input
-              id="a-password"
-              type="password"
-              required
-              minLength={8}
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-            />
+            <label className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={linkExisting}
+                onChange={(e) => setLinkExisting(e.target.checked)}
+              />
+              <span>La cuenta de acceso ya existe (vincular solo el perfil)</span>
+            </label>
+
+            {!linkExisting && (
+              <>
+                <label htmlFor="a-password">Contraseña de acceso (mín. 8 caracteres)</label>
+                <input
+                  id="a-password"
+                  type="password"
+                  required
+                  minLength={8}
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                />
+              </>
+            )}
 
             <label htmlFor="a-phone">Teléfono</label>
             <input

@@ -222,3 +222,63 @@ def test_auditor_cannot_assign_own_competency(client):
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 403
+
+
+def test_link_existing_auditor_user_without_password(client):
+    """Una cuenta con rol auditor creada en /users se vincula al crear el perfil."""
+    headers = auth_headers(client)
+    # 1. Crear la cuenta (rol auditor) sin perfil
+    r = client.post(
+        "/api/users",
+        json={
+            "email": "auditor.vincular@test.local",
+            "full_name": "Auditor a Vincular",
+            "password": "CuentaInicial123!",
+            "role": "auditor",
+        },
+        headers=headers,
+    )
+    assert r.status_code == 201
+
+    # 2. Crear el perfil SIN contraseña (la cuenta ya existe)
+    r = client.post(
+        "/api/auditors",
+        json={
+            "email": "auditor.vincular@test.local",
+            "full_name": "Auditor a Vincular",
+            "password": None,
+            "city": "Puebla",
+        },
+        headers=headers,
+    )
+    assert r.status_code == 201, r.text
+    auditor = r.json()
+    assert auditor["city"] == "Puebla"
+    assert auditor["full_name"] == "Auditor a Vincular"
+
+    # 3. La contraseña original sigue funcionando
+    r = login(client, "auditor.vincular@test.local", "CuentaInicial123!")
+    assert r.status_code == 200
+
+    # 4. Crear de nuevo el perfil -> 409 (ya existe)
+    r = client.post(
+        "/api/auditors",
+        json={"email": "auditor.vincular@test.local", "full_name": "Auditor Duplicado", "password": None},
+        headers=headers,
+    )
+    assert r.status_code == 409
+
+
+def test_create_auditor_without_password_requires_existing_account(client):
+    headers = auth_headers(client)
+    r = client.post(
+        "/api/auditors",
+        json={
+            "email": "auditor.nueva.sinpass@test.local",
+            "full_name": "Sin Cuenta",
+            "password": None,
+        },
+        headers=headers,
+    )
+    assert r.status_code == 422
+    assert "contraseña" in r.json()["detail"].lower()

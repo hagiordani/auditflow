@@ -119,6 +119,12 @@ def create_auditor(
                 detail="El correo pertenece a un usuario que no es auditor",
             )
     else:
+        # Cuenta nueva: la contraseña es obligatoria.
+        if payload.password is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Se requiere contraseña para crear la cuenta de acceso",
+            )
         user = User(
             email=email,
             full_name=payload.full_name.strip(),

@@ -345,6 +345,27 @@ select:focus {
   border: 1px solid #f5c6c6;
 }
 
+.alert-info {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid #cfe0ef;
+  margin-bottom: 16px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 8px 0;
+  cursor: pointer;
+}
+
+.checkbox-row input {
+  width: auto;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;

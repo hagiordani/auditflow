@@ -4,7 +4,7 @@ import type { Auditor, AvailabilityStatus } from './types'
 export interface AuditorCreateInput {
   email: string
   full_name: string
-  password: string
+  password: string | null
   phone?: string | null
   city?: string | null
   state?: string | null

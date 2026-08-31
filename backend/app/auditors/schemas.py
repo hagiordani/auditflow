@@ -48,11 +48,15 @@ class AuditorOut(BaseModel):
 
 
 class AuditorCreate(BaseModel):
-    """Alta de auditor: crea también su cuenta de usuario (rol auditor)."""
+    """Alta de auditor: crea su cuenta de usuario o vincula una existente.
+
+    Si `password` es None se asume que la cuenta ya existe (rol auditor) y
+    solo se crea el perfil; en ese caso la contraseña se ignora.
+    """
 
     email: Email
     full_name: str = Field(min_length=2, max_length=255)
-    password: Password
+    password: Password | None = None
     phone: str | None = Field(default=None, max_length=30)
     city: str | None = Field(default=None, max_length=120)
     state: str | None = Field(default=None, max_length=120)
