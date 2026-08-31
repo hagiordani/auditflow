@@ -537,3 +537,157 @@ select:focus {
   flex-wrap: wrap;
   gap: 10px;
 }
+
+/* ===== Sprint 3: clientes y oportunidades ===== */
+.page-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.filter-row label {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.filter-row select {
+  width: auto;
+  min-width: 180px;
+}
+
+.mono {
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-draft {
+  background: #eef1f5;
+  color: var(--text-muted);
+}
+
+.status-published {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.status-review {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+.status-assigned {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.status-progress {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.status-done {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.status-paid {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.status-cancelled {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+
+@media (max-width: 760px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-span {
+  grid-column: 1 / -1;
+}
+
+.form-grid label,
+.comp-section label {
+  font-weight: 600;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  color: var(--text);
+  resize: vertical;
+}
+
+.comp-section {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-top: 8px;
+}
+
+.comp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.comp-header h4 {
+  margin: 0;
+}
+
+.comp-row {
+  grid-template-columns: 1fr 1fr auto;
+  margin-bottom: 8px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.detail-sub {
+  margin: 18px 0 6px;
+  font-size: 14px;
+}

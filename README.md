@@ -87,7 +87,7 @@ cd backend
 - [x] **Sprint 0** — Scaffolding, Docker, auth JWT, primer admin, login de punta a punta
 - [x] **Sprint 1** — Usuarios y accesos: alta/baja, roles, activación/desactivación, cambio de contraseña
 - [x] **Sprint 2** — Auditores, competencias y matriz con niveles y vigencias (bloqueo por vencimiento)
-- [ ] Sprint 3 — Clientes y oportunidades
+- [x] **Sprint 3** — Clientes y oportunidades: folio automático, 11 estados con transiciones, cancelación con motivo y bitácora completa
 - [ ] Sprint 4 — Portal del auditor
 - [ ] Sprint 5 — Selección y asignación
 - [ ] Sprint 6 — Calendario y documentos
@@ -102,8 +102,10 @@ cd backend
 - `users`: alta, listado, edición y activación/desactivación (solo admin)
 - `auditors`: alta (crea también la cuenta de acceso), listado, perfil propio (`/auditors/me`), edición y matriz de competencias (asignar/quitar)
 - `competencies`: catálogo de normas con alta/edición y activación/desactivación
-- Regla de vigencia: una competencia vencida o revocada se reporta como `is_valid: false` (base de la compatibilidad de oportunidades)
+- `clients`: catálogo de clientes con contacto y RFC (admin/operaciones editan; supervisor lee)
+- `opportunities`: creación en Borrador con **folio automático** (`AUD-AAAA-NNNNN`), publicación con validaciones (cliente, fechas, competencias), máquina de estados con 11 estados, cancelación con motivo, filtros por estado/cliente/competencia y **historial completo de acciones** (`/history`)
+- Reglas de negocio: una competencia vencida o revocada se reporta como `is_valid: false`; edición solo en Borrador; transiciones validadas; bitácora con datos previos/nuevos en JSON
 
 **Frontend**
 
-- Login, dashboard por rol, gestión de usuarios (admin), catálogo de auditores (admin/operaciones) con alta y detalle, matriz de competencias con vigencias, catálogo de competencias (admin), cambio de contraseña
+- Login, dashboard por rol, gestión de usuarios (admin), catálogo de auditores (admin/operaciones) con alta y detalle, matriz de competencias con vigencias, catálogo de competencias (admin), clientes (alta + listado), oportunidades (lista con filtro por estado, alta/edición con competencias requeridas, detalle con acciones de publicación/transición/cancelación e historial), cambio de contraseña

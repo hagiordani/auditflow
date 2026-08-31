@@ -7,10 +7,16 @@ const NAV_BY_ROLE: Record<Role, { to: string; label: string }[]> = {
     { to: '/admin/users', label: 'Usuarios' },
     { to: '/auditors', label: 'Auditores' },
     { to: '/competencies', label: 'Competencias' },
+    { to: '/clients', label: 'Clientes' },
+    { to: '/opportunities', label: 'Oportunidades' },
   ],
-  operations: [{ to: '/auditors', label: 'Auditores' }],
+  operations: [
+    { to: '/auditors', label: 'Auditores' },
+    { to: '/clients', label: 'Clientes' },
+    { to: '/opportunities', label: 'Oportunidades' },
+  ],
   auditor: [],
-  supervisor: [],
+  supervisor: [{ to: '/opportunities', label: 'Oportunidades' }],
 }
 
 const COMMON_NAV = [{ to: '/profile/security', label: 'Seguridad' }]

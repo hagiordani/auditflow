@@ -2,8 +2,12 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './layouts/AppLayout'
 import { AuditorDetailPage } from './pages/AuditorDetailPage'
 import { AuditorsPage } from './pages/AuditorsPage'
+import { ClientsPage } from './pages/ClientsPage'
 import { Dashboard } from './pages/Dashboard'
 import { LoginPage } from './pages/Login'
+import { OpportunityDetailPage } from './pages/OpportunityDetailPage'
+import { OpportunityFormPage } from './pages/OpportunityFormPage'
+import { OpportunitiesPage } from './pages/OpportunitiesPage'
 import { SecurityPage } from './pages/SecurityPage'
 import { CompetenciesPage } from './pages/admin/CompetenciesPage'
 import { UsersPage } from './pages/admin/UsersPage'
@@ -22,6 +26,14 @@ export default function App() {
           <Route element={<RoleRoute roles={['admin', 'operations']} />}>
             <Route path="/auditors" element={<AuditorsPage />} />
             <Route path="/auditors/:auditorId" element={<AuditorDetailPage />} />
+            <Route path="/clients" element={<ClientsPage />} />
+            <Route path="/opportunities/new" element={<OpportunityFormPage />} />
+            <Route path="/opportunities/:opportunityId/edit" element={<OpportunityFormPage />} />
+          </Route>
+
+          <Route element={<RoleRoute roles={['admin', 'operations', 'supervisor']} />}>
+            <Route path="/opportunities" element={<OpportunitiesPage />} />
+            <Route path="/opportunities/:opportunityId" element={<OpportunityDetailPage />} />
           </Route>
 
           <Route element={<RoleRoute roles={['admin']} />}>

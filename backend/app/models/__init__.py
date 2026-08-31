@@ -7,6 +7,15 @@ from app.models.auditor import (
     AuditorCompetency,
     Competency,
 )
+from app.models.client import Client
+from app.models.opportunity import (
+    ALLOWED_TRANSITIONS,
+    EXPENSE_OPTIONS,
+    AuditLog,
+    AuditOpportunity,
+    OpportunityCompetency,
+    OpportunityStatus,
+)
 from app.models.user import User, UserRole
 
 __all__ = [
@@ -17,4 +26,11 @@ __all__ = [
     "AuditorCompetency",
     "COMPETENCY_LEVELS",
     "AVAILABILITY_STATUSES",
+    "Client",
+    "AuditOpportunity",
+    "OpportunityCompetency",
+    "OpportunityStatus",
+    "ALLOWED_TRANSITIONS",
+    "EXPENSE_OPTIONS",
+    "AuditLog",
 ]
