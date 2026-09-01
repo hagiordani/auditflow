@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oportunidades de auditoría</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">✓</div>
+      </div>
+      <nav class="topnav">
+        <a href="#">Inicio</a>
+        <a href="#">Auditores</a>
+        <a href="#">Clientes</a>
+        <a class="active" href="#">Oportunidades</a>
+        <a href="#">Calendario</a>
+        <a href="#">Reportes</a>
+        <a href="#">Seguridad</a>
+      </nav>
+      <div class="top-actions">
+        <button class="icon-btn" aria-label="Buscar">⌕</button>
+        <button class="icon-btn notification" aria-label="Notificaciones">♧<span>2</span></button>
+        <div class="avatar">HA</div>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <div class="side-section">
+          <a class="side-link selected" href="#"><span>▣</span> Oportunidades</a>
+          <a class="side-link" href="#"><span>▤</span> Mis propuestas</a>
+          <a class="side-link" href="#"><span>♙</span> Asignaciones</a>
+          <a class="side-link" href="#"><span>◷</span> Historial</a>
+        </div>
+
+        <div class="side-divider"></div>
+
+        <div class="side-section">
+          <div class="side-title">Filtros rápidos</div>
+          <button class="quick-filter active" data-filter="all"><span>☷</span> Todas <b>12</b></button>
+          <button class="quick-filter" data-filter="running"><span>◉</span> En ejecución <b>4</b></button>
+          <button class="quick-filter" data-filter="upcoming"><span>◷</span> Próximas <b>3</b></button>
+          <button class="quick-filter" data-filter="done"><span>✓</span> Finalizadas <b>5</b></button>
+        </div>
+
+        <div class="auditor-card">
+          <div class="auditor-icon">♙</div>
+          <h3>¿Eres auditor?</h3>
+          <p>Consulta oportunidades disponibles y postúlate.</p>
+          <button class="outline-btn">Ir al portal del auditor <span>›</span></button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section class="page-head">
+          <div>
+            <div class="eyebrow">GESTIÓN DE SERVICIOS</div>
+            <h1>Oportunidades de auditoría</h1>
+            <p>Servicios publicados para asignación a auditores externos.</p>
+          </div>
+          <button class="primary-btn" id="newOpportunity">＋ Nueva oportunidad</button>
+        </section>
+
+        <section class="kpis">
+          <article class="kpi">
+            <div class="kpi-icon blue">▤</div>
+            <div><span>Total oportunidades</span><strong>12</strong><small><em>↗ +2</em> vs. mes anterior</small></div>
+          </article>
+          <article class="kpi">
+            <div class="kpi-icon amber">▶</div>
+            <div><span>En ejecución</span><strong>4</strong><small>33% del total</small></div>
+          </article>
+          <article class="kpi">
+            <div class="kpi-icon blue">▣</div>
+            <div><span>Próximas</span><strong>3</strong><small>Próximos 30 días</small></div>
+          </article>
+          <article class="kpi">
+            <div class="kpi-icon green">✓</div>
+            <div><span>Finalizadas</span><strong>5</strong><small>Este mes</small></div>
+          </article>
+        </section>
+
+        <section class="content-card">
+          <div class="toolbar">
+            <label class="search">
+              <span>⌕</span>
+              <input id="searchInput" type="search" placeholder="Buscar por cliente, servicio o folio..." />
+            </label>
+            <select id="statusSelect">
+              <option value="all">Estado: Todos</option>
+              <option value="running">Estado: En ejecución</option>
+              <option value="upcoming">Estado: Próximas</option>
+              <option value="done">Estado: Finalizadas</option>
+            </select>
+            <button class="filter-btn" id="advancedBtn">▽ &nbsp; Filtros avanzados</button>
+            <div class="view-switch">
+              <button class="view-btn active" data-view="list">▤ &nbsp; Lista</button>
+              <button class="view-btn" data-view="calendar">▣ &nbsp; Calendario</button>
+            </div>
+          </div>
+
+          <div class="advanced-panel" id="advancedPanel">
+            <div><label>Ubicación</label><select><option>Todas</option><option>Acapulco</option><option>Ciudad de México</option></select></div>
+            <div><label>Pago mínimo</label><input type="number" placeholder="$0" /></div>
+            <div><label>Tipo de auditoría</label><select><option>Todos</option><option>Financiera</option><option>Cumplimiento</option></select></div>
+            <button id="clearFilters">Limpiar</button>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="opportunity-panel" id="listPanel">
+              <div class="table-head">
+                <span>FOLIO</span><span>SERVICIO</span><span>CLIENTE</span><span>FECHAS</span><span>PAGO</span><span>ESTADO</span><span></span>
+              </div>
+
+              <article class="opportunity" data-status="running">
+                <div class="cell folio">AUD-2026-00001</div>
+                <div class="cell service"><a href="#">Auditoría de Demo</a><small>Acapulco, Guerrero</small></div>
+                <div class="cell">Cliente Demo 02</div>
+                <div class="cell dates"><span>▣ &nbsp;1 nov 2026</span><span>→ &nbsp;5 nov 2026</span></div>
+                <div class="cell payment">$10,000<br>MXN</div>
+                <div class="cell"><span class="status running">En ejecución</span></div>
+                <button class="more" aria-label="Más opciones">⋮</button>
+
+                <div class="opportunity-detail">
+                  <div class="detail-title"><span class="dot"></span><strong>Auditoría de Demo</strong><span class="status running">En ejecución</span></div>
+                  <div class="detail-body">
+                    <div class="detail-meta">
+                      <div><span>▣</span><label>Folio</label><b>AUD-2026-00001</b></div>
+                      <div><span>♙</span><label>Cliente</label><b>Cliente Demo 02</b></div>
+                      <div><span>⌖</span><label>Ubicación</label><b>Acapulco, Guerrero</b></div>
+                      <div><span>▤</span><label>Pago</label><b>$10,000 MXN</b></div>
+                    </div>
+                    <div class="description">
+                      <label>Descripción</label>
+                      <p>Auditoría financiera y de cumplimiento del ejercicio fiscal 2026.</p>
+                      <p>Revisión de estados financieros, controles internos y cumplimiento normativo.</p>
+                      <button class="secondary-btn">Ver detalles completos</button>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <div class="empty-state" id="emptyState">No se encontraron oportunidades con los filtros seleccionados.</div>
+
+              <div class="pagination">
+                <span>Mostrando 1 de 12 oportunidades</span>
+                <div>
+                  <button disabled>«</button><button class="current">1</button><button>2</button><button>3</button><button>»</button>
+                </div>
+              </div>
+            </section>
+
+            <aside class="calendar-panel" id="calendarPanel">
+              <div class="calendar-head">
+                <button class="calendar-nav" id="prevMonth">‹</button>
+                <strong id="monthTitle">Noviembre 2026</strong>
+                <button class="calendar-nav" id="nextMonth">›</button>
+              </div>
+              <div class="calendar-week"><span>DOM</span><span>LUN</span><span>MAR</span><span>MIÉ</span><span>JUE</span><span>VIE</span><span>SÁB</span></div>
+              <div class="calendar-days" id="calendarDays"></div>
+
+              <div class="agenda">
+                <h4>Del 1 al 5 de noviembre</h4>
+                <article class="agenda-item">
+                  <div class="agenda-dot"></div>
+                  <div><strong>Auditoría de Demo</strong><span>Cliente Demo 02</span></div>
+                  <span class="status running">En ejecución</span>
+                  <b>1 nov – 5 nov</b>
+                </article>
+                <button class="agenda-link">Ver agenda completa <span>→</span></button>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal" id="newModal" aria-hidden="true">
+    <div class="modal-card">
+      <button class="modal-close" id="closeModal">×</button>
+      <div class="eyebrow">NUEVO SERVICIO</div>
+      <h2>Crear oportunidad</h2>
+      <p>Publica una nueva oportunidad de auditoría para auditores externos.</p>
+      <form id="opportunityForm">
+        <label>Nombre del servicio<input required placeholder="Ej. Auditoría financiera anual"></label>
+        <label>Cliente<input required placeholder="Nombre del cliente"></label>
+        <div class="form-row"><label>Inicio<input required type="date"></label><label>Fin<input required type="date"></label></div>
+        <label>Pago<input required type="text" placeholder="$10,000 MXN"></label>
+        <button class="primary-btn" type="submit">Publicar oportunidad</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

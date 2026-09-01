@@ -97,8 +97,12 @@ def summary(db: Session = Depends(get_db), _: User = Depends(require_roles(*READ
     return {
         "total_opportunities": sum(by_status.values()),
         "opportunities_by_status": by_status,
+        "available": by_status["published"] + by_status["has_interested"] + by_status["under_review"],
+        "in_execution": by_status["assigned"] + by_status["confirmed"] + by_status["in_progress"],
+        "finalized": by_status["completed"] + by_status["invoice_received"] + by_status["paid"],
         "total_auditors": total_auditors,
         "active_auditors": active_auditors,
+        "total_clients": db.query(Client).count(),
         "pending_confirmations": pending_confirmations,
         "confirmed_assignments": confirmed_assignments,
         "confirmed_cost_total": float(confirmed_cost_total or 0),
@@ -106,6 +110,82 @@ def summary(db: Session = Depends(get_db), _: User = Depends(require_roles(*READ
         "expiring_certifications_60d": expiring_certifications,
         "invoices_pending": invoices_pending,
     }
+
+
+@router.get("/auditor-performance")
+def auditor_performance(db: Session = Depends(get_db), _: User = Depends(require_roles(*READERS))):
+    """Rendimiento por auditor: asignadas, en ejecución, finalizadas y % de cumplimiento."""
+    final_statuses = ("completed", "invoice_received", "paid")
+    execution_statuses = ("assigned", "confirmed", "in_progress")
+
+    auditors = db.query(Auditor).all()
+    assignments = db.query(Assignment).all()
+    applications = db.query(Application).all()
+
+    # Índices por auditor
+    apps_count: dict[int, int] = {}
+    for a in applications:
+        apps_count[a.auditor_id] = apps_count.get(a.auditor_id, 0) + 1
+
+    result = []
+    for auditor in auditors:
+        own = [a for a in assignments if a.auditor_id == auditor.id]
+        opp_status = [a.opportunity.status for a in own]
+        assigned = len(own)
+        finalized = sum(1 for s in opp_status if s in final_statuses)
+        in_execution = sum(1 for s in opp_status if s in execution_statuses)
+        completion = round(finalized * 100 / assigned) if assigned else 0
+        result.append(
+            {
+                "auditor_id": auditor.id,
+                "name": auditor.user.full_name,
+                "email": auditor.user.email,
+                "assigned": assigned,
+                "in_execution": in_execution,
+                "finalized": finalized,
+                "completion_pct": completion,
+                "applications": apps_count.get(auditor.id, 0),
+            }
+        )
+
+    result.sort(key=lambda r: (-r["finalized"], -r["assigned"], r["name"]))
+    return result
+
+
+@router.get("/client-performance")
+def client_performance(db: Session = Depends(get_db), _: User = Depends(require_roles(*READERS))):
+    """Rendimiento por cliente: auditorías, activas, finalizadas y monto."""
+    final_statuses = ("completed", "invoice_received", "paid")
+    execution_statuses = ("assigned", "confirmed", "in_progress")
+
+    opportunities = db.query(AuditOpportunity).all()
+    clients = db.query(Client).all()
+
+    result = []
+    for client in clients:
+        own = [o for o in opportunities if o.client_id == client.id]
+        if not own:
+            continue
+        audits = len(own)
+        active = sum(1 for o in own if o.status in execution_statuses)
+        finalized = sum(1 for o in own if o.status in final_statuses)
+        amount = sum(float(o.payment_amount or 0) for o in own)
+        compliance = round(finalized * 100 / audits) if audits else 0
+        result.append(
+            {
+                "client_id": client.id,
+                "name": client.commercial_name or client.business_name,
+                "business_name": client.business_name,
+                "audits": audits,
+                "active": active,
+                "finalized": finalized,
+                "amount": amount,
+                "compliance_pct": compliance,
+            }
+        )
+
+    result.sort(key=lambda r: (-r["audits"], r["name"]))
+    return result
 
 
 @router.get("/auditor-summary")

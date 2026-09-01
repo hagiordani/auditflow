@@ -3,14 +3,40 @@ import api from './client'
 export interface ReportsSummary {
   total_opportunities: number
   opportunities_by_status: Record<string, number>
+  available: number
+  in_execution: number
+  finalized: number
   total_auditors: number
   active_auditors: number
+  total_clients: number
   pending_confirmations: number
   confirmed_assignments: number
   confirmed_cost_total: number
   cost_this_month: number
   expiring_certifications_60d: number
   invoices_pending: number
+}
+
+export interface AuditorPerformance {
+  auditor_id: number
+  name: string
+  email: string
+  assigned: number
+  in_execution: number
+  finalized: number
+  completion_pct: number
+  applications: number
+}
+
+export interface ClientPerformance {
+  client_id: number
+  name: string
+  business_name: string
+  audits: number
+  active: number
+  finalized: number
+  amount: number
+  compliance_pct: number
 }
 
 export interface AuditorSummary {
@@ -69,6 +95,16 @@ export async function fetchExpiringCertifications(days = 60): Promise<ExpiringCe
   const { data } = await api.get<ExpiringCertification[]>('/reports/expiring-certifications', {
     params: { days },
   })
+  return data
+}
+
+export async function fetchAuditorPerformance(): Promise<AuditorPerformance[]> {
+  const { data } = await api.get<AuditorPerformance[]>('/reports/auditor-performance')
+  return data
+}
+
+export async function fetchClientPerformance(): Promise<ClientPerformance[]> {
+  const { data } = await api.get<ClientPerformance[]>('/reports/client-performance')
   return data
 }
 

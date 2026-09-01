@@ -1,51 +1,57 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { fetchAuditorSummary, fetchSummary, type AuditorSummary, type ReportsSummary } from '../api/reports'
-import type { Role } from '../api/types'
+import { useNavigate } from 'react-router-dom'
+import {
+  fetchAuditorPerformance,
+  fetchAuditorSummary,
+  fetchClientPerformance,
+  fetchSummary,
+  type AuditorPerformance,
+  type AuditorSummary,
+  type ClientPerformance,
+  type ReportsSummary,
+} from '../api/reports'
+import type { OpportunityStatus, Role } from '../api/types'
+import { DonutChart } from '../components/DonutChart'
 import { useAuth } from '../context/AuthContext'
 import { formatMoney } from '../utils/format'
+import { OPPORTUNITY_STATUS_LABELS } from '../utils/status'
+
+const STATUS_COLORS: Record<OpportunityStatus, string> = {
+  draft: '#94a3b8',
+  published: '#145da0',
+  has_interested: '#0ea5e9',
+  under_review: '#e99b2f',
+  assigned: '#0f4f87',
+  confirmed: '#20a05a',
+  in_progress: '#f59e0b',
+  completed: '#16a34a',
+  invoice_received: '#059669',
+  paid: '#10b981',
+  cancelled: '#dc2626',
+}
 
 const ROLE_INFO: Record<Role, { title: string; description: string }> = {
-  admin: {
-    title: 'Administración',
-    description: 'Acceso total: usuarios, catálogos y configuración de la plataforma.',
-  },
-  operations: {
-    title: 'Operaciones',
-    description: 'Publica oportunidades de auditoría, revisa interesados y asigna auditores.',
-  },
-  auditor: {
-    title: 'Portal del auditor',
-    description: 'Consulta oportunidades compatibles con tu perfil y gestiona tus servicios.',
-  },
-  supervisor: {
-    title: 'Supervisión',
-    description: 'Consulta servicios, indicadores y costos de la operación.',
-  },
+  admin: { title: 'Centro de control', description: 'Visión ejecutiva de toda la operación.' },
+  operations: { title: 'Operaciones', description: 'Publica oportunidades y asigna auditores.' },
+  auditor: { title: 'Mi agenda', description: 'Oportunidades y asignaciones que te corresponden.' },
+  supervisor: { title: 'Supervisión', description: 'Consulta servicios, indicadores y costos.' },
 }
 
-const QUICK_LINKS: Partial<Record<Role, { to: string; label: string }[]>> = {
-  admin: [
-    { to: '/admin/users', label: 'Usuarios' },
-    { to: '/auditors', label: 'Auditores' },
-    { to: '/competencies', label: 'Competencias' },
-    { to: '/reports', label: 'Reportes' },
-  ],
-  operations: [
-    { to: '/auditors', label: 'Auditores' },
-    { to: '/reports', label: 'Reportes' },
-  ],
-  supervisor: [{ to: '/reports', label: 'Reportes' }],
-  auditor: [
-    { to: '/auditor/opportunities', label: 'Oportunidades disponibles' },
-    { to: '/auditor/applications', label: 'Mis postulaciones' },
-    { to: '/auditor/profile', label: 'Mi perfil' },
-  ],
-}
-
-function Kpi({ value, label }: { value: string | number; label: string }) {
+function Kpi({
+  value,
+  label,
+  onClick,
+}: {
+  value: string | number
+  label: string
+  onClick?: () => void
+}) {
   return (
-    <div className="kpi-card">
+    <div
+      className={`kpi-card ${onClick ? 'kpi-clickable' : ''}`}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+    >
       <span className="kpi-value">{value}</span>
       <span className="kpi-label">{label}</span>
     </div>
@@ -54,95 +60,190 @@ function Kpi({ value, label }: { value: string | number; label: string }) {
 
 export function Dashboard() {
   const { user } = useAuth()
+  const navigate = useNavigate()
+
   const [summary, setSummary] = useState<ReportsSummary | null>(null)
   const [auditorSummary, setAuditorSummary] = useState<AuditorSummary | null>(null)
+  const [auditorPerf, setAuditorPerf] = useState<AuditorPerformance[]>([])
+  const [clientPerf, setClientPerf] = useState<ClientPerformance[]>([])
 
   useEffect(() => {
     if (!user) return
     if (user.role === 'admin' || user.role === 'operations' || user.role === 'supervisor') {
-      fetchSummary()
-        .then(setSummary)
-        .catch(() => setSummary(null))
-    } else if (user.role === 'auditor') {
-      fetchAuditorSummary()
-        .then(setAuditorSummary)
-        .catch(() => setAuditorSummary(null))
+      fetchSummary().then(setSummary).catch(() => setSummary(null))
+    }
+    if (user.role === 'admin' || user.role === 'supervisor') {
+      fetchAuditorPerformance().then(setAuditorPerf).catch(() => setAuditorPerf([]))
+      fetchClientPerformance().then(setClientPerf).catch(() => setClientPerf([]))
+    }
+    if (user.role === 'auditor') {
+      fetchAuditorSummary().then(setAuditorSummary).catch(() => setAuditorSummary(null))
     }
   }, [user])
 
   if (!user) return null
   const info = ROLE_INFO[user.role]
-  const quickLinks = QUICK_LINKS[user.role] ?? []
-  const isStaff = ['admin', 'operations', 'supervisor'].includes(user.role)
+
+  const donutSegments = (Object.keys(summary?.opportunities_by_status ?? {}) as OpportunityStatus[])
+    .filter((s) => (summary?.opportunities_by_status[s] ?? 0) > 0)
+    .map((s) => ({
+      label: OPPORTUNITY_STATUS_LABELS[s],
+      value: summary!.opportunities_by_status[s],
+      color: STATUS_COLORS[s],
+    }))
 
   return (
     <div>
-      <h2 className="page-title">Hola, {user.full_name}</h2>
+      <h2 className="page-title">{info.title}</h2>
       <p className="page-subtitle">{info.description}</p>
-
-      {isStaff && summary && (
-        <div className="kpi-grid">
-          <Kpi value={summary.total_opportunities} label="Oportunidades" />
-          <Kpi value={summary.active_auditors} label="Auditores activos" />
-          <Kpi value={summary.pending_confirmations} label="Por confirmar" />
-          <Kpi value={summary.confirmed_assignments} label="Confirmados" />
-          <Kpi value={formatMoney(summary.confirmed_cost_total)} label="Costo confirmado" />
-          <Kpi value={summary.invoices_pending} label="Facturas pendientes" />
-          <Kpi value={summary.expiring_certifications_60d} label="Certs. por vencer (60d)" />
-        </div>
-      )}
 
       {user.role === 'auditor' && auditorSummary && (
         <div className="kpi-grid">
           <Kpi value={auditorSummary.available_opportunities} label="Oportunidades disponibles" />
           <Kpi value={auditorSummary.my_applications} label="Mis postulaciones" />
-          <Kpi value={auditorSummary.upcoming_assignments} label="Próximos servicios" />
+          <Kpi value={auditorSummary.upcoming_assignments} label="Próximas auditorías" />
           <Kpi value={auditorSummary.occupied_days} label="Días ocupados" />
           <Kpi value={auditorSummary.expiring_my_certifications_90d} label="Certs. por vencer (90d)" />
         </div>
       )}
 
-      <div className="grid">
-        <section className="card">
-          <h3>{info.title}</h3>
-          <p>
-            Tu perfil: <strong>{user.email}</strong>
-          </p>
-        </section>
-
-        {quickLinks.length > 0 && (
-          <section className="card">
-            <h3>Accesos rápidos</h3>
-            <div className="quick-links">
-              {quickLinks.map((link) => (
-                <Link key={link.to} to={link.to} className="btn btn-ghost">
-                  {link.label} →
-                </Link>
-              ))}
-            </div>
-          </section>
+      {(user.role === 'admin' || user.role === 'operations' || user.role === 'supervisor') &&
+        summary && (
+          <div className="kpi-grid">
+            <Kpi
+              value={summary.total_opportunities}
+              label="Total oportunidades"
+              onClick={() => navigate('/opportunities')}
+            />
+            <Kpi
+              value={summary.available}
+              label="Disponibles"
+              onClick={() => navigate('/opportunities?status=published')}
+            />
+            <Kpi
+              value={summary.in_execution}
+              label="En ejecución"
+              onClick={() => navigate('/opportunities?status=in_progress')}
+            />
+            <Kpi
+              value={summary.finalized}
+              label="Finalizadas"
+              onClick={() => navigate('/opportunities?status=completed')}
+            />
+            <Kpi value={summary.active_auditors} label="Auditores activos" onClick={() => navigate('/auditors')} />
+            <Kpi value={summary.total_clients} label="Clientes" onClick={() => navigate('/clients')} />
+          </div>
         )}
 
-        <section className="card">
-          <h3>Flujo del negocio</h3>
-          <ul className="plain-list">
-            <li>Operaciones publica una oportunidad.</li>
-            <li>El sistema la muestra solo a auditores compatibles.</li>
-            <li>Los auditores indican interés.</li>
-            <li>Operaciones asigna al auditor definitivo.</li>
-            <li>El auditor confirma y las fechas quedan bloqueadas.</li>
-          </ul>
-        </section>
-      </div>
+      {(user.role === 'admin' || user.role === 'supervisor') && summary && (
+        <div className="grid grid-2col">
+          <section className="card">
+            <h3>Oportunidades por estado</h3>
+            <DonutChart segments={donutSegments} />
+          </section>
 
-      <section className="card card-wide">
-        <h3>Estado del proyecto</h3>
-        <p>
-          Sprints 0–7 completados: autenticación, catálogos, oportunidades, portal del auditor,
-          asignaciones, calendario, documentos, notificaciones y reportes. Pendiente: seguridad
-          final y despliegue.
-        </p>
-      </section>
+          <section className="card">
+            <h3>Rendimiento de auditores</h3>
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Auditor</th>
+                    <th>Asignadas</th>
+                    <th>En ejecución</th>
+                    <th>Finalizadas</th>
+                    <th>Cumplimiento</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {auditorPerf.map((a) => (
+                    <tr key={a.auditor_id}>
+                      <td>
+                        <strong>{a.name}</strong>
+                        <div className="muted small">{a.email}</div>
+                      </td>
+                      <td>{a.assigned}</td>
+                      <td>{a.in_execution}</td>
+                      <td>{a.finalized}</td>
+                      <td>
+                        <span
+                          className={`badge ${
+                            a.completion_pct >= 90
+                              ? 'badge-valid'
+                              : a.completion_pct >= 70
+                                ? 'badge-busy'
+                                : 'badge-invalid'
+                          }`}
+                        >
+                          {a.completion_pct}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {auditorPerf.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="muted">
+                        Sin auditores todavía.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section className="card card-wide">
+            <h3>Rendimiento de clientes</h3>
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Auditorías</th>
+                    <th>En ejecución</th>
+                    <th>Finalizadas</th>
+                    <th>Monto</th>
+                    <th>Cumplimiento</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {clientPerf.map((c) => (
+                    <tr key={c.client_id}>
+                      <td>
+                        <strong>{c.name}</strong>
+                      </td>
+                      <td>{c.audits}</td>
+                      <td>{c.active}</td>
+                      <td>{c.finalized}</td>
+                      <td>{formatMoney(c.amount)}</td>
+                      <td>
+                        <span
+                          className={`badge ${
+                            c.compliance_pct >= 90
+                              ? 'badge-valid'
+                              : c.compliance_pct >= 70
+                                ? 'badge-busy'
+                                : 'badge-invalid'
+                          }`}
+                        >
+                          {c.compliance_pct}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {clientPerf.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="muted">
+                        Sin clientes todavía.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   )
 }

@@ -117,3 +117,35 @@ def test_supervisor_can_read_reports(client):
     sh = {"Authorization": f"Bearer {token}"}
     r = client.get("/api/reports/summary", headers=sh)
     assert r.status_code == 200
+
+
+def test_summary_grouped_counts(client):
+    headers = auth_headers(client)
+    data = client.get("/api/reports/summary", headers=headers).json()
+    for key in ("available", "in_execution", "finalized", "total_clients"):
+        assert key in data
+    b = data["opportunities_by_status"]
+    assert data["available"] == b["published"] + b["has_interested"] + b["under_review"]
+    assert data["finalized"] == b["completed"] + b["invoice_received"] + b["paid"]
+
+
+def test_auditor_performance_endpoint(client):
+    headers = auth_headers(client)
+    r = client.get("/api/reports/auditor-performance", headers=headers)
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data, list)
+    if data:
+        row = data[0]
+        assert "assigned" in row and "finalized" in row and "completion_pct" in row
+
+
+def test_client_performance_endpoint(client):
+    headers = auth_headers(client)
+    r = client.get("/api/reports/client-performance", headers=headers)
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data, list)
+    if data:
+        row = data[0]
+        assert "audits" in row and "amount" in row and "compliance_pct" in row

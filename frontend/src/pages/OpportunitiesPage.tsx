@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { getErrorMessage } from '../api/client'
 import { fetchOpportunities, publishOpportunity } from '../api/opportunities'
 import type { AuditOpportunity, OpportunityStatus } from '../api/types'
@@ -29,8 +29,12 @@ const ALL_STATUSES: (OpportunityStatus | 'all')[] = [
 export function OpportunitiesPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [opportunities, setOpportunities] = useState<AuditOpportunity[]>([])
-  const [statusFilter, setStatusFilter] = useState<OpportunityStatus | 'all'>('all')
+  const initialStatus = (searchParams.get('status') as OpportunityStatus | null) ?? 'all'
+  const [statusFilter, setStatusFilter] = useState<OpportunityStatus | 'all'>(
+    ALL_STATUSES.includes(initialStatus) ? initialStatus : 'all',
+  )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const canEdit = user?.role === 'admin' || user?.role === 'operations'
@@ -44,6 +48,15 @@ export function OpportunitiesPage() {
   }
 
   useEffect(load, [statusFilter])
+
+  const handleStatusChange = (value: OpportunityStatus | 'all') => {
+    setStatusFilter(value)
+    if (value === 'all') {
+      setSearchParams({})
+    } else {
+      setSearchParams({ status: value })
+    }
+  }
 
   const handlePublish = async (opp: AuditOpportunity) => {
     setError('')
@@ -80,7 +93,7 @@ export function OpportunitiesPage() {
         <select
           id="status-filter"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as OpportunityStatus | 'all')}
+          onChange={(e) => handleStatusChange(e.target.value as OpportunityStatus | 'all')}
         >
           {ALL_STATUSES.map((s) => (
             <option key={s} value={s}>
