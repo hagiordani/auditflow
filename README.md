@@ -77,10 +77,10 @@ cd backend
 
 | Rol | Alcance |
 |---|---|
-| `admin` | Acceso total: usuarios, catálogos, configuración |
-| `operations` | Publica oportunidades, revisa interesados, asigna auditores |
-| `auditor` | Ve oportunidades compatibles, postula, gestiona sus servicios |
-| `supervisor` | Consulta servicios, indicadores y costos (solo lectura) |
+| `admin` | **Centro de control**: oportunidades, auditores, clientes, usuarios, competencias, calendario, reportes y mapa |
+| `auditor` | **Mi agenda**: oportunidades compatibles, postulaciones, mis auditorías, calendario, documentos y perfil |
+
+> Los roles anteriores `operations` y `supervisor` se integraron en `admin` (migración automática). El sistema quedó con **dos perfiles**.
 
 ## Estado del proyecto
 

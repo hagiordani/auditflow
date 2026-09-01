@@ -182,6 +182,15 @@ export function OpportunitiesPage() {
                   ◷ {formatDate(o.start_date)} → {formatDate(o.end_date)}
                 </span>
               </div>
+              {o.competencies.length > 0 && (
+                <div className="occ-comps">
+                  {o.competencies.map((c) => (
+                    <span key={c.id} className="occ-comp-chip">
+                      {c.competency.name}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div className="occ-footer">
                 <strong className="occ-payment">{formatMoney(o.payment_amount)}</strong>
                 <div className="row-actions">

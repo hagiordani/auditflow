@@ -20,8 +20,8 @@
 **Narración:**
 "Bienvenidos. AuditFlow es la plataforma privada donde su organismo publica
 auditorías y los auditores autorizados las consultan, se postulan y reciben
-asignaciones. En este video veremos cómo usarla, desde la perspectiva de
-operaciones, de un auditor y de dirección."
+asignaciones. En este video veremos cómo usarla, desde la perspectiva de un
+administrador y de un auditor."
 
 ---
 
@@ -59,11 +59,11 @@ Esto permite luego asociar cada servicio y consultar el historial por cliente."
 
 ---
 
-## Escena 5 — Operaciones: publicar un servicio (2:40–4:00)
+## Escena 5 — Administrador: publicar un servicio (2:40–4:00)
 **En pantalla:** Oportunidades → Nueva oportunidad → llenar campos →
 Guardar → Publicar.
 **Narración:**
-"Operaciones crea el servicio. El folio se genera solo. Se indica cliente,
+"El administrador crea el servicio. El folio se genera solo. Se indica cliente,
 tipo, ciudad, fechas, días, pago, viáticos, la fecha límite para postularse
 y las competencias requeridas. Al guardar queda en Borrador. Al publicar,
 la oportunidad aparece únicamente en el portal de los auditores que cumplen
@@ -82,10 +82,10 @@ respuesta con un comentario y rectificarla mientras el servicio siga abierto."
 
 ---
 
-## Escena 7 — Operaciones: asignar (5:00–6:00)
-**En pantalla:** (volver a operaciones) detalle → Interesados → Asignar.
+## Escena 7 — Administrador: asignar (5:00–6:00)
+**En pantalla:** (volver a administrador) detalle → Interesados → Asignar.
 **Narración:**
-"Cuando llegan interesados, operaciones abre el servicio y ve la lista.
+"Cuando llegan interesados, el administrador abre el servicio y ve la lista.
 Elige al auditor y pulsa Asignar. El pago y las condiciones quedan
 congelados en la asignación. El sistema evita asignaciones dobles: si el
 auditor ya tiene otro servicio con fechas cruzadas o un bloqueo de
@@ -114,12 +114,13 @@ historial con el usuario y la fecha, para saber quién hizo qué."
 
 ---
 
-## Escena 10 — Supervisor: reportes (7:30–8:00)
-**En pantalla:** Reportes → KPIs → Exportar CSV.
+## Escena 10 — Administrador: reportes y mapa (7:30–8:00)
+**En pantalla:** Reportes → KPIs → mapa de México → Exportar CSV.
 **Narración:**
-"Por último, dirección consulta los reportes: servicios por estado, costos
-confirmados, facturas pendientes y certificaciones por vencer. Todo se puede
-exportar a Excel. Así se tiene el pulso de la operación en un solo lugar."
+"Por último, el administrador consulta los reportes: servicios por estado,
+costos confirmados, facturas pendientes y certificaciones por vencer, junto
+con el mapa de México y la evolución de auditorías. Todo se puede exportar
+a Excel. Así se tiene el pulso de la operación en un solo lugar."
 
 ---
 

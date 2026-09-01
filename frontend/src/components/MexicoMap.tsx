@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { geoMercator, geoPath } from 'd3-geo'
 import type { ByStateMetric } from '../api/reports'
-import { MEXICO_REGIONS, resolveState } from '../utils/mexico'
+import { resolveState } from '../utils/mexico'
+import mexicoData from '../assets/mexico.json'
 
 type MetricKey = 'opportunities' | 'in_execution' | 'finalized' | 'auditors' | 'clients'
 
@@ -13,15 +15,19 @@ const METRICS: { key: MetricKey; label: string }[] = [
   { key: 'clients', label: 'Clientes' },
 ]
 
-function shade(value: number, max: number): { bg: string; fg: string } {
-  if (value <= 0) return { bg: '#eef2f7', fg: '#70809a' }
+const collection = mexicoData as unknown as {
+  features: { properties: { name: string }; geometry: unknown }[]
+}
+
+function shade(value: number, max: number): string {
+  if (value <= 0) return '#eef2f7'
   const t = Math.min(1, value / Math.max(1, max))
   const from = [219, 234, 254]
   const to = [20, 93, 160]
   const r = Math.round(from[0] + (to[0] - from[0]) * t)
   const g = Math.round(from[1] + (to[1] - from[1]) * t)
   const b = Math.round(from[2] + (to[2] - from[2]) * t)
-  return { bg: `rgb(${r},${g},${b})`, fg: t > 0.55 ? '#fff' : '#14233d' }
+  return `rgb(${r},${g},${b})`
 }
 
 export function MexicoMap({ data }: { data: ByStateMetric[] }) {
@@ -39,6 +45,14 @@ export function MexicoMap({ data }: { data: ByStateMetric[] }) {
 
   const max = useMemo(() => Math.max(0, ...values.values()), [values])
 
+  const projection = useMemo(
+    () => geoMercator().fitSize([720, 540], mexicoData as never),
+    [],
+  )
+  const pathGen = useMemo(() => geoPath(projection), [projection])
+
+  const metricLabel = METRICS.find((m) => m.key === metric)?.label ?? ''
+
   return (
     <div>
       <div className="map-toolbar">
@@ -52,31 +66,37 @@ export function MexicoMap({ data }: { data: ByStateMetric[] }) {
         </select>
       </div>
 
-      <div className="mexico-map">
-        {MEXICO_REGIONS.map((region) => (
-          <div key={region.name} className="mexico-region">
-            <div className="mexico-region-name">{region.name}</div>
-            <div className="mexico-tiles">
-              {region.states.map((state) => {
-                const value = values.get(state.name) ?? 0
-                const color = shade(value, max)
-                return (
-                  <button
-                    key={state.name}
-                    type="button"
-                    className="mexico-tile"
-                    style={{ background: color.bg, color: color.fg }}
-                    title={`${state.name}\n${METRICS.find((m) => m.key === metric)?.label}: ${value}`}
-                    onClick={() => navigate(`/opportunities?state=${encodeURIComponent(state.name)}`)}
-                  >
-                    <span className="mexico-tile-abbr">{state.abbr}</span>
-                    <span className="mexico-tile-value">{value}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        ))}
+      <svg viewBox="0 0 720 540" className="mexico-svg" role="img" aria-label="Mapa de México">
+        {collection.features.map((f) => {
+          const state = resolveState(f.properties.name)
+          const value = state ? (values.get(state.name) ?? 0) : 0
+          const d = pathGen(f.geometry as never)
+          if (!d) return null
+          return (
+            <path
+              key={f.properties.name}
+              d={d}
+              fill={shade(value, max)}
+              stroke="#ffffff"
+              strokeWidth={0.8}
+              className="mexico-state"
+              onClick={() =>
+                state && navigate(`/opportunities?state=${encodeURIComponent(state.name)}`)
+              }
+            >
+              <title>{`${state?.name ?? f.properties.name}\n${metricLabel}: ${value}`}</title>
+            </path>
+          )
+        })}
+      </svg>
+
+      <div className="map-legend">
+        <span>0</span>
+        <div
+          className="map-legend-bar"
+          style={{ background: 'linear-gradient(90deg, #dbeafe, #145da0)' }}
+        />
+        <span>{max}</span>
       </div>
     </div>
   )

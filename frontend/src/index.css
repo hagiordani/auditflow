@@ -1090,6 +1090,12 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.opportunity-card:hover {
+  box-shadow: 0 12px 30px rgba(20, 93, 160, 0.12);
+  transform: translateY(-2px);
 }
 
 .opportunity-card h3 {
@@ -1126,6 +1132,21 @@ textarea {
 .occ-payment {
   font-size: 16px;
   color: var(--text);
+}
+
+.occ-comps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.occ-comp-chip {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 /* Buscador global en el topbar */
@@ -1283,4 +1304,37 @@ textarea {
   line-height: 1;
   cursor: pointer;
   padding: 0;
+}
+
+/* Mapa geográfico real de México */
+.mexico-svg {
+  width: 100%;
+  height: auto;
+  max-height: 460px;
+}
+
+.mexico-state {
+  cursor: pointer;
+  transition: opacity 0.12s ease;
+}
+
+.mexico-state:hover {
+  opacity: 0.82;
+  stroke: #145da0;
+  stroke-width: 1.2;
+}
+
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.map-legend-bar {
+  width: 140px;
+  height: 8px;
+  border-radius: 4px;
 }
