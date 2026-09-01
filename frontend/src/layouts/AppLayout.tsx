@@ -4,23 +4,20 @@ import type { Role } from '../api/types'
 import { NotificationBell } from '../components/NotificationBell'
 import { useAuth } from '../context/AuthContext'
 
+const ADMIN_NAV: { to: string; label: string; icon: string }[] = [
+  { to: '/opportunities', label: 'Oportunidades', icon: '▣' },
+  { to: '/auditors', label: 'Auditores', icon: '♙' },
+  { to: '/clients', label: 'Clientes', icon: '▤' },
+  { to: '/admin/users', label: 'Usuarios', icon: '☷' },
+  { to: '/competencies', label: 'Competencias', icon: '✓' },
+  { to: '/calendar', label: 'Calendario', icon: '◷' },
+  { to: '/reports', label: 'Reportes', icon: '▥' },
+]
+
 const NAV_BY_ROLE: Record<Role, { to: string; label: string; icon: string }[]> = {
-  admin: [
-    { to: '/opportunities', label: 'Oportunidades', icon: '▣' },
-    { to: '/auditors', label: 'Auditores', icon: '♙' },
-    { to: '/clients', label: 'Clientes', icon: '▤' },
-    { to: '/admin/users', label: 'Usuarios', icon: '☷' },
-    { to: '/competencies', label: 'Competencias', icon: '✓' },
-    { to: '/calendar', label: 'Calendario', icon: '◷' },
-    { to: '/reports', label: 'Reportes', icon: '▥' },
-  ],
-  operations: [
-    { to: '/opportunities', label: 'Oportunidades', icon: '▣' },
-    { to: '/auditors', label: 'Auditores', icon: '♙' },
-    { to: '/clients', label: 'Clientes', icon: '▤' },
-    { to: '/calendar', label: 'Calendario', icon: '◷' },
-    { to: '/reports', label: 'Reportes', icon: '▥' },
-  ],
+  admin: ADMIN_NAV,
+  operations: ADMIN_NAV,
+  supervisor: ADMIN_NAV,
   auditor: [
     { to: '/auditor/opportunities', label: 'Oportunidades', icon: '▣' },
     { to: '/auditor/assignments', label: 'Mis auditorías', icon: '♙' },
@@ -29,18 +26,13 @@ const NAV_BY_ROLE: Record<Role, { to: string; label: string; icon: string }[]> =
     { to: '/auditor/documents', label: 'Mis documentos', icon: '▤' },
     { to: '/auditor/profile', label: 'Mi perfil', icon: '♙' },
   ],
-  supervisor: [
-    { to: '/opportunities', label: 'Oportunidades', icon: '▣' },
-    { to: '/calendar', label: 'Calendario', icon: '◷' },
-    { to: '/reports', label: 'Reportes', icon: '▥' },
-  ],
 }
 
 const ROLE_LABELS: Record<Role, string> = {
   admin: 'Administrador',
-  operations: 'Operaciones',
+  operations: 'Administrador',
   auditor: 'Auditor',
-  supervisor: 'Supervisor',
+  supervisor: 'Administrador',
 }
 
 function initials(name: string): string {

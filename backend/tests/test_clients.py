@@ -49,15 +49,15 @@ def test_update_client(client):
     assert data["notes"] == "Observación interna"
 
 
-def test_supervisor_can_read_but_not_create(client):
+def test_auditor_cannot_read_or_create_clients(client):
     admin_headers = auth_headers(client)
     r = client.post(
         "/api/users",
         json={
-            "email": "supervisor.s3@test.local",
-            "full_name": "Supervisor S3",
-            "password": "SuperSecret123!",
-            "role": "supervisor",
+            "email": "auditor.cliente@test.local",
+            "full_name": "Auditor Cliente",
+            "password": "AuditorSecret123!",
+            "role": "auditor",
         },
         headers=admin_headers,
     )
@@ -65,11 +65,12 @@ def test_supervisor_can_read_but_not_create(client):
 
     from .utils import login
 
-    token = login(client, "supervisor.s3@test.local", "SuperSecret123!").json()["access_token"]
-    sup_headers = {"Authorization": f"Bearer {token}"}
+    token = login(client, "auditor.cliente@test.local", "AuditorSecret123!").json()["access_token"]
+    aud_headers = {"Authorization": f"Bearer {token}"}
 
-    assert client.get("/api/clients", headers=sup_headers).status_code == 200
+    # Los auditores no ven el catálogo de clientes ni pueden crearlos
+    assert client.get("/api/clients", headers=aud_headers).status_code == 403
     r = client.post(
-        "/api/clients", json={"business_name": "No Permitido"}, headers=sup_headers
+        "/api/clients", json={"business_name": "No Permitido"}, headers=aud_headers
     )
     assert r.status_code == 403

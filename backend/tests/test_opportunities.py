@@ -268,19 +268,8 @@ def test_auditor_cannot_see_opportunities(client):
     assert r.status_code == 403
 
 
-def test_supervisor_can_read_opportunities(client):
-    admin_headers = auth_headers(client)
-    r = client.post(
-        "/api/users",
-        json={
-            "email": "supervisor.opp@test.local",
-            "full_name": "Supervisor Opp",
-            "password": "SuperSecret123!",
-            "role": "supervisor",
-        },
-        headers=admin_headers,
-    )
-    assert r.status_code == 201
-    token = login(client, "supervisor.opp@test.local", "SuperSecret123!").json()["access_token"]
-    r = client.get("/api/opportunities", headers={"Authorization": f"Bearer {token}"})
+def test_admin_can_read_opportunities(client):
+    headers = auth_headers(client)
+    r = client.get("/api/opportunities", headers=headers)
     assert r.status_code == 200
+    assert isinstance(r.json(), list)

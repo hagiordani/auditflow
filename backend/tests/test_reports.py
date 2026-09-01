@@ -99,24 +99,38 @@ def test_auditor_summary_forbidden_for_staff(client):
     assert r.status_code == 403  # admin no tiene perfil de auditor
 
 
-def test_supervisor_can_read_reports(client):
+def test_auditor_cannot_read_reports(client):
     headers = auth_headers(client)
     r = client.post(
         "/api/users",
         json={
-            "email": "supervisor.rep@test.local",
-            "full_name": "Supervisor Reportes",
-            "password": "SuperSecret123!",
-            "role": "supervisor",
+            "email": "auditor.rep@test.local",
+            "full_name": "Auditor Reportes",
+            "password": "AuditorSecret123!",
+            "role": "auditor",
         },
         headers=headers,
     )
-    if r.status_code == 201:
-        pass  # creado; si 409 ya existía
-    token = login(client, "supervisor.rep@test.local", "SuperSecret123!").json()["access_token"]
-    sh = {"Authorization": f"Bearer {token}"}
-    r = client.get("/api/reports/summary", headers=sh)
-    assert r.status_code == 200
+    assert r.status_code == 201
+    token = login(client, "auditor.rep@test.local", "AuditorSecret123!").json()["access_token"]
+    r = client.get("/api/reports/summary", headers={"Authorization": f"Bearer {token}"})
+    assert r.status_code == 403
+
+
+def test_role_creation_restricted_to_two_profiles(client):
+    headers = auth_headers(client)
+    for role in ("operations", "supervisor"):
+        r = client.post(
+            "/api/users",
+            json={
+                "email": f"legacy.{role}@test.local",
+                "full_name": "Legacy",
+                "password": "LegacySecret123!",
+                "role": role,
+            },
+            headers=headers,
+        )
+        assert r.status_code == 422, f"El rol {role} debería rechazarse"
 
 
 def test_summary_grouped_counts(client):

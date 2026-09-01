@@ -77,7 +77,7 @@ def test_admin_cannot_create_duplicate_email(client):
         "email": "dup@test.local",
         "full_name": "Duplicado",
         "password": "Secret123!",
-        "role": "operations",
+        "role": "auditor",
     }
     assert client.post("/api/users", json=payload, headers=headers).status_code == 201
     r = client.post("/api/users", json=payload, headers=headers)

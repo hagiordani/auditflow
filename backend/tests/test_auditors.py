@@ -3,24 +3,6 @@
 from .utils import ADMIN_EMAIL, ADMIN_PASSWORD, auth_headers, login
 
 
-def create_staff(client, email, role):
-    """Crea un usuario de staff (operations) via admin y devuelve sus headers."""
-    admin_headers = auth_headers(client)
-    r = client.post(
-        "/api/users",
-        json={
-            "email": email,
-            "full_name": f"Staff {role}",
-            "password": "StaffSecret123!",
-            "role": role,
-        },
-        headers=admin_headers,
-    )
-    assert r.status_code == 201
-    token = login(client, email, "StaffSecret123!").json()["access_token"]
-    return {"Authorization": f"Bearer {token}"}
-
-
 def create_competency(client, headers, name="ISO 9001"):
     r = client.post(
         "/api/competencies",
@@ -71,9 +53,25 @@ def test_duplicate_competency_rejected(client):
     assert r.status_code == 409
 
 
-def test_operations_cannot_create_competency(client):
-    ops_headers = create_staff(client, "operaciones.s2@test.local", "operations")
-    r = client.post("/api/competencies", json={"name": "ISO 14001"}, headers=ops_headers)
+def test_auditor_cannot_create_competency(client):
+    headers = auth_headers(client)
+    r = client.post(
+        "/api/users",
+        json={
+            "email": "auditor.competencia@test.local",
+            "full_name": "Auditor Competencia",
+            "password": "AuditorSecret123!",
+            "role": "auditor",
+        },
+        headers=headers,
+    )
+    assert r.status_code == 201
+    token = login(client, "auditor.competencia@test.local", "AuditorSecret123!").json()["access_token"]
+    r = client.post(
+        "/api/competencies",
+        json={"name": "ISO 14001"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
     assert r.status_code == 403
 
 

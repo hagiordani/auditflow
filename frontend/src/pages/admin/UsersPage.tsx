@@ -6,18 +6,17 @@ import { useAuth } from '../../context/AuthContext'
 
 const ROLES: { value: Role; label: string }[] = [
   { value: 'admin', label: 'Administrador' },
-  { value: 'operations', label: 'Operaciones' },
-  { value: 'supervisor', label: 'Supervisor' },
+  { value: 'auditor', label: 'Auditor' },
 ]
 
 const ROLE_LABELS: Record<Role, string> = {
   admin: 'Administrador',
-  operations: 'Operaciones',
+  operations: 'Administrador',
   auditor: 'Auditor',
-  supervisor: 'Supervisor',
+  supervisor: 'Administrador',
 }
 
-const EMPTY_FORM = { full_name: '', email: '', password: '', role: 'operations' as Role }
+const EMPTY_FORM = { full_name: '', email: '', password: '', role: 'auditor' as Role }
 
 export function UsersPage() {
   const { user: currentUser } = useAuth()

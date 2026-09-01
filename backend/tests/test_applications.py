@@ -292,21 +292,9 @@ def test_staff_only_application_list(client):
     r = client.get(f"/api/opportunities/{opp_id}/applications", headers=ah)
     assert r.status_code == 403
 
-    # El supervisor tampoco (solo staff editor: admin/operations)
-    r = client.post(
-        "/api/users",
-        json={
-            "email": "supervisor4@test.local",
-            "full_name": "Sup Cuatro",
-            "password": "SuperSecret123!",
-            "role": "supervisor",
-        },
-        headers=headers,
-    )
-    assert r.status_code == 201
-    sh = auditor_headers(client, "supervisor4@test.local", "SuperSecret123!")
-    r = client.get(f"/api/opportunities/{opp_id}/applications", headers=sh)
-    assert r.status_code == 403
+    # El administrador sí ve la lista
+    r = client.get(f"/api/opportunities/{opp_id}/applications", headers=headers)
+    assert r.status_code == 200
 
 
 def test_user_without_auditor_profile_blocked(client):

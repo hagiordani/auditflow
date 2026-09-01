@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.core.validators import Email, Password
 from app.models.user import UserRole
@@ -37,11 +37,25 @@ class UserCreate(BaseModel):
     role: UserRole
     is_active: bool = True
 
+    @field_validator("role")
+    @classmethod
+    def _role_limited(cls, value: UserRole) -> UserRole:
+        if value not in (UserRole.admin, UserRole.auditor):
+            raise ValueError("Solo se permiten los roles 'admin' y 'auditor'")
+        return value
+
 
 class UserUpdate(BaseModel):
     full_name: str | None = Field(default=None, min_length=2, max_length=255)
     role: UserRole | None = None
     is_active: bool | None = None
+
+    @field_validator("role")
+    @classmethod
+    def _role_update_limited(cls, value: UserRole | None) -> UserRole | None:
+        if value is not None and value not in (UserRole.admin, UserRole.auditor):
+            raise ValueError("Solo se permiten los roles 'admin' y 'auditor'")
+        return value
 
 
 class ChangePasswordRequest(BaseModel):
