@@ -54,3 +54,41 @@ def test_change_own_password(client):
     assert login(client, "admin@test.local", "TestAdmin123!").status_code == 401
     r = login(client, "admin@test.local", "NuevaClave123!")
     assert r.status_code == 200
+
+    # Restaurar la contraseña original para no afectar a otros tests
+    r = client.post(
+        "/api/auth/change-password",
+        json={"current_password": "NuevaClave123!", "new_password": "TestAdmin123!"},
+        headers=headers,
+    )
+    assert r.status_code == 200
+
+
+def test_admin_can_change_role_and_creates_auditor_profile(client):
+    headers = auth_headers(client)
+    r = client.post(
+        "/api/users",
+        json={
+            "email": "cambiar.rol@test.local",
+            "full_name": "Cambia Rol",
+            "password": "CambiaRol123!",
+            "role": "auditor",
+        },
+        headers=headers,
+    )
+    assert r.status_code == 201
+    user_id = r.json()["id"]
+
+    # a administrador
+    r = client.patch(f"/api/users/{user_id}", json={"role": "admin"}, headers=headers)
+    assert r.status_code == 200
+    assert r.json()["role"] == "admin"
+
+    # de vuelta a auditor: debe crearse el perfil de auditor automáticamente
+    r = client.patch(f"/api/users/{user_id}", json={"role": "auditor"}, headers=headers)
+    assert r.status_code == 200
+    assert r.json()["role"] == "auditor"
+
+    r = client.get("/api/auditors", headers=headers)
+    assert r.status_code == 200
+    assert any(a["email"] == "cambiar.rol@test.local" for a in r.json())

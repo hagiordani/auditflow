@@ -47,6 +47,18 @@ export function UsersPage() {
     }
   }
 
+  const changeRole = async (user: User) => {
+    setError('')
+    const isAdminLike = user.role === 'admin' || user.role === 'operations' || user.role === 'supervisor'
+    const newRole: Role = isAdminLike ? 'auditor' : 'admin'
+    try {
+      const updated = await updateUser(user.id, { role: newRole })
+      setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)))
+    } catch (err) {
+      setError(getErrorMessage(err))
+    }
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setFormError('')
@@ -65,10 +77,10 @@ export function UsersPage() {
   return (
     <div>
       <h2 className="page-title">Usuarios</h2>
-      <p className="page-subtitle">Cuentas de acceso del equipo interno (administrador, operaciones, supervisor).</p>
+      <p className="page-subtitle">Cuentas de acceso: Administrador o Auditor. Puedes cambiar el rol de cada cuenta.</p>
       <div className="alert alert-info">
-        Los <strong>auditores</strong> se crean en la sección <strong>Auditores</strong> para
-        generar a la vez su cuenta de acceso y su perfil con competencias.
+        Los <strong>auditores</strong> normalmente se crean en <strong>Auditores</strong> (genera su
+        cuenta + perfil). Si una cuenta quedó con rol incorrecto, usa <strong>Cambiar rol</strong>.
       </div>
 
       <div className="grid grid-2col">
@@ -153,19 +165,34 @@ export function UsersPage() {
                       </span>
                     </td>
                     <td>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-ghost"
-                        disabled={u.id === currentUser?.id}
-                        title={
-                          u.id === currentUser?.id
-                            ? 'No puedes desactivar tu propia cuenta'
-                            : undefined
-                        }
-                        onClick={() => toggleActive(u)}
-                      >
-                        {u.is_active ? 'Desactivar' : 'Activar'}
-                      </button>
+                      <div className="row-actions">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-ghost"
+                          disabled={u.id === currentUser?.id}
+                          title={
+                            u.id === currentUser?.id
+                              ? 'No puedes cambiar tu propio rol'
+                              : undefined
+                          }
+                          onClick={() => changeRole(u)}
+                        >
+                          Cambiar rol
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-ghost"
+                          disabled={u.id === currentUser?.id}
+                          title={
+                            u.id === currentUser?.id
+                              ? 'No puedes desactivar tu propia cuenta'
+                              : undefined
+                          }
+                          onClick={() => toggleActive(u)}
+                        >
+                          {u.is_active ? 'Desactivar' : 'Activar'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

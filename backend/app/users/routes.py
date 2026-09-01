@@ -7,6 +7,7 @@ from app.auth.dependencies import require_roles
 from app.auth.schemas import UserCreate, UserOut, UserUpdate
 from app.auth.security import hash_password
 from app.database import get_db
+from app.models.auditor import Auditor
 from app.models.user import User, UserRole
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -53,6 +54,12 @@ def update_user(
         user.full_name = payload.full_name.strip()
     if payload.role is not None:
         user.role = payload.role
+        # Al convertir a auditor, asegura que exista su perfil para que el
+        # portal del auditor funcione de inmediato.
+        if user.role == UserRole.auditor and not db.query(Auditor).filter(
+            Auditor.user_id == user.id
+        ).first():
+            db.add(Auditor(user_id=user.id, availability_status="available"))
     if payload.is_active is not None:
         user.is_active = payload.is_active
     db.commit()
