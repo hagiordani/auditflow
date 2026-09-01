@@ -10,6 +10,7 @@ import {
   OPPORTUNITY_STATUS_LABELS,
 } from '../utils/status'
 import { formatMoney } from '../utils/format'
+import { normalizeState } from '../utils/mexico'
 
 const ALL_STATUSES: (OpportunityStatus | 'all')[] = [
   'all',
@@ -37,6 +38,7 @@ export function OpportunitiesPage() {
     ALL_STATUSES.includes(initialStatus) ? initialStatus : 'all',
   )
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
+  const [stateFilter, setStateFilter] = useState(searchParams.get('state') ?? '')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const canEdit = user?.role === 'admin' || user?.role === 'operations'
@@ -58,13 +60,18 @@ export function OpportunitiesPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return opportunities
-    return opportunities.filter((o) =>
-      [o.folio, o.title, o.client?.business_name, o.client?.commercial_name, o.city, o.state]
-        .filter(Boolean)
-        .some((v) => String(v).toLowerCase().includes(q)),
-    )
-  }, [opportunities, query])
+    const stateNorm = normalizeState(stateFilter)
+    return opportunities.filter((o) => {
+      if (q) {
+        const match = [o.folio, o.title, o.client?.business_name, o.client?.commercial_name, o.city, o.state]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(q))
+        if (!match) return false
+      }
+      if (stateFilter && normalizeState(o.state ?? '') !== stateNorm) return false
+      return true
+    })
+  }, [opportunities, query, stateFilter])
 
   const handlePublish = async (opp: AuditOpportunity) => {
     setError('')
@@ -130,6 +137,24 @@ export function OpportunitiesPage() {
         </div>
       </div>
 
+      {stateFilter && (
+        <div className="filter-chip-row">
+          <span className="filter-chip">
+            Estado: {stateFilter}
+            <button
+              type="button"
+              aria-label="Quitar filtro de estado"
+              onClick={() => {
+                setStateFilter('')
+                setSearchParams({})
+              }}
+            >
+              ×
+            </button>
+          </span>
+        </div>
+      )}
+
       {error && <div className="alert alert-error">{error}</div>}
       {loading && <p className="muted">Cargando…</p>}
 
@@ -183,6 +208,7 @@ export function OpportunitiesPage() {
         <div className="card">
           <p className="muted">
             Sin oportunidades{statusFilter !== 'all' ? ' en este estado' : ''}
+            {stateFilter ? ` en ${stateFilter}` : ''}
             {query ? ' para tu búsqueda' : ''}.
           </p>
         </div>

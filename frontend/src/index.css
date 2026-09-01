@@ -1153,3 +1153,134 @@ textarea {
   box-shadow: none;
   font-size: 13px;
 }
+
+/* ===== Fase D: mapa de México y evolución ===== */
+.card-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.card-head-row h3 {
+  margin: 0;
+}
+
+.map-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.map-toolbar select {
+  width: auto;
+  min-width: 160px;
+}
+
+.mexico-map {
+  display: grid;
+  gap: 14px;
+}
+
+.mexico-region-name {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7c8ba1;
+  margin-bottom: 6px;
+}
+
+.mexico-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mexico-tile {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-width: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.mexico-tile:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(20, 93, 160, 0.18);
+}
+
+.mexico-tile-abbr {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mexico-tile-value {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.evolution-chart {
+  width: 100%;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 10px;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #56657c;
+  font-weight: 600;
+}
+
+.chart-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.chart-axis-label {
+  font-size: 10px;
+  fill: #8491a4;
+}
+
+.filter-chip-row {
+  margin: 0 0 14px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.filter-chip button {
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}

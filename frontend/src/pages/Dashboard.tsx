@@ -3,15 +3,21 @@ import { useNavigate } from 'react-router-dom'
 import {
   fetchAuditorPerformance,
   fetchAuditorSummary,
+  fetchByState,
   fetchClientPerformance,
+  fetchEvolution,
   fetchSummary,
   type AuditorPerformance,
   type AuditorSummary,
+  type ByStateMetric,
   type ClientPerformance,
+  type EvolutionPoint,
   type ReportsSummary,
 } from '../api/reports'
 import type { OpportunityStatus, Role } from '../api/types'
 import { DonutChart } from '../components/DonutChart'
+import { EvolutionChart } from '../components/EvolutionChart'
+import { MexicoMap } from '../components/MexicoMap'
 import { useAuth } from '../context/AuthContext'
 import { formatMoney } from '../utils/format'
 import { OPPORTUNITY_STATUS_LABELS } from '../utils/status'
@@ -66,6 +72,9 @@ export function Dashboard() {
   const [auditorSummary, setAuditorSummary] = useState<AuditorSummary | null>(null)
   const [auditorPerf, setAuditorPerf] = useState<AuditorPerformance[]>([])
   const [clientPerf, setClientPerf] = useState<ClientPerformance[]>([])
+  const [byState, setByState] = useState<ByStateMetric[]>([])
+  const [evolution, setEvolution] = useState<EvolutionPoint[]>([])
+  const [period, setPeriod] = useState(30)
 
   useEffect(() => {
     if (!user) return
@@ -75,11 +84,13 @@ export function Dashboard() {
     if (user.role === 'admin' || user.role === 'supervisor') {
       fetchAuditorPerformance().then(setAuditorPerf).catch(() => setAuditorPerf([]))
       fetchClientPerformance().then(setClientPerf).catch(() => setClientPerf([]))
+      fetchByState().then(setByState).catch(() => setByState([]))
+      fetchEvolution(period).then(setEvolution).catch(() => setEvolution([]))
     }
     if (user.role === 'auditor') {
       fetchAuditorSummary().then(setAuditorSummary).catch(() => setAuditorSummary(null))
     }
-  }, [user])
+  }, [user, period])
 
   if (!user) return null
   const info = ROLE_INFO[user.role]
@@ -243,6 +254,36 @@ export function Dashboard() {
             </div>
           </section>
         </div>
+      )}
+
+      {(user.role === 'admin' || user.role === 'supervisor') && (
+        <>
+          <section className="card card-wide">
+            <h3>Auditorías en México</h3>
+            <p className="muted small">
+              Pasa el cursor sobre un estado para ver el detalle y haz clic para ver sus
+              oportunidades.
+            </p>
+            <MexicoMap data={byState} />
+          </section>
+
+          <section className="card card-wide">
+            <div className="card-head-row">
+              <h3>Evolución de auditorías</h3>
+              <select
+                value={period}
+                onChange={(e) => setPeriod(Number(e.target.value))}
+                style={{ width: 'auto' }}
+              >
+                <option value={30}>Últimos 30 días</option>
+                <option value={90}>Últimos 3 meses</option>
+                <option value={180}>Últimos 6 meses</option>
+                <option value={365}>Último año</option>
+              </select>
+            </div>
+            <EvolutionChart data={evolution} />
+          </section>
+        </>
       )}
     </div>
   )

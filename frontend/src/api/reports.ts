@@ -108,6 +108,35 @@ export async function fetchClientPerformance(): Promise<ClientPerformance[]> {
   return data
 }
 
+export interface ByStateMetric {
+  state: string
+  opportunities: number
+  in_execution: number
+  finalized: number
+  auditors: number
+  clients: number
+}
+
+export interface EvolutionPoint {
+  key: string
+  label: string
+  created: number
+  assigned: number
+  finalized: number
+}
+
+export async function fetchByState(): Promise<ByStateMetric[]> {
+  const { data } = await api.get<ByStateMetric[]>('/reports/by-state')
+  return data
+}
+
+export async function fetchEvolution(period = 30): Promise<EvolutionPoint[]> {
+  const { data } = await api.get<EvolutionPoint[]>('/reports/evolution', {
+    params: { period },
+  })
+  return data
+}
+
 export async function downloadOpportunitiesCsv(): Promise<void> {
   const response = await api.get('/reports/export.csv', { responseType: 'blob' })
   const url = URL.createObjectURL(response.data as Blob)

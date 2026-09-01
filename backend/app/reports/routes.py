@@ -2,7 +2,8 @@
 
 import csv
 import io
-from datetime import date, timedelta
+from collections import defaultdict
+from datetime import date, datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy import case, func
@@ -18,6 +19,7 @@ from app.models.auditor import Auditor, AuditorCompetency
 from app.models.client import Client
 from app.models.document import Document
 from app.models.opportunity import (
+    AuditLog,
     AuditOpportunity,
     OpportunityCompetency,
     OpportunityStatus,
@@ -323,6 +325,130 @@ def expiring_certifications(
             "days_left": (ac.valid_until - today).days,
         }
         for ac in rows
+    ]
+
+
+@router.get("/by-state")
+def by_state(db: Session = Depends(get_db), _: User = Depends(require_roles(*READERS))):
+    """Métrica por estado de México (para el mapa coroplético)."""
+    final_statuses = ("completed", "invoice_received", "paid")
+    execution_statuses = ("assigned", "confirmed", "in_progress")
+
+    opportunities = db.query(AuditOpportunity).all()
+    auditors = db.query(Auditor).all()
+    clients = db.query(Client).all()
+
+    agg: dict[str, dict] = defaultdict(
+        lambda: {"opportunities": 0, "in_execution": 0, "finalized": 0, "auditors": 0, "clients": 0}
+    )
+
+    for o in opportunities:
+        state = (o.state or "").strip()
+        if not state:
+            continue
+        agg[state]["opportunities"] += 1
+        if o.status in execution_statuses:
+            agg[state]["in_execution"] += 1
+        if o.status in final_statuses:
+            agg[state]["finalized"] += 1
+
+    for a in auditors:
+        state = (a.state or "").strip()
+        if state:
+            agg[state]["auditors"] += 1
+
+    for c in clients:
+        state = (c.state or "").strip()
+        if state:
+            agg[state]["clients"] += 1
+
+    result = [{"state": state, **counts} for state, counts in agg.items()]
+    result.sort(key=lambda r: (-r["opportunities"], r["state"]))
+    return result
+
+
+@router.get("/evolution")
+def evolution(
+    period: int = Query(default=30, ge=7, le=365),
+    db: Session = Depends(get_db),
+    _: User = Depends(require_roles(*READERS)),
+):
+    """Evolución temporal: oportunidades creadas, asignadas y finalizadas."""
+    final_statuses = ("completed", "invoice_received", "paid")
+    today = datetime.now(timezone.utc).date()
+    start = today - timedelta(days=period)
+
+    if period <= 31:
+        bucket = "day"
+    elif period <= 120:
+        bucket = "week"
+    else:
+        bucket = "month"
+
+    def bucket_key(d: date) -> date:
+        if bucket == "day":
+            return d
+        if bucket == "week":
+            return d - timedelta(days=d.weekday())
+        return date(d.year, d.month, 1)
+
+    def bucket_label(k: date) -> str:
+        if bucket == "day":
+            return k.isoformat()
+        if bucket == "week":
+            return k.strftime("%d %b")
+        return k.strftime("%b %Y")
+
+    # Eventos
+    created = [
+        o.created_at.date()
+        for o in db.query(AuditOpportunity)
+        .filter(AuditOpportunity.created_at >= start)
+        .all()
+    ]
+    assigned = [
+        a.assigned_at.date()
+        for a in db.query(Assignment).filter(Assignment.assigned_at >= start).all()
+    ]
+    logs = db.query(AuditLog).filter(AuditLog.created_at >= start).all()
+    finalized = [
+        l.created_at.date()
+        for l in logs
+        if l.action == "transition"
+        and isinstance(l.new_data, dict)
+        and l.new_data.get("status") in final_statuses
+    ]
+
+    # Construir eje continuo de buckets
+    buckets: list[date] = []
+    k = bucket_key(start)
+    end_key = bucket_key(today)
+    while k <= end_key:
+        buckets.append(k)
+        if bucket == "day":
+            k += timedelta(days=1)
+        elif bucket == "week":
+            k += timedelta(days=7)
+        else:
+            k = date(k.year + 1, 1, 1) if k.month == 12 else date(k.year, k.month + 1, 1)
+
+    counts = {k: {"created": 0, "assigned": 0, "finalized": 0} for k in buckets}
+    for d in created:
+        counts[bucket_key(d)]["created"] += 1
+    for d in assigned:
+        counts[bucket_key(d)]["assigned"] += 1
+    for d in finalized:
+        counts[bucket_key(d)]["finalized"] += 1
+
+    return [
+        {
+            "key": k.isoformat(),
+            "label": bucket_label(k),
+            "created": counts[k]["created"],
+            "assigned": counts[k]["assigned"],
+            "finalized": counts[k]["finalized"],
+        }
+        for k in buckets
     ]
 
 

@@ -149,3 +149,36 @@ def test_client_performance_endpoint(client):
     if data:
         row = data[0]
         assert "audits" in row and "amount" in row and "compliance_pct" in row
+
+
+def test_by_state_endpoint(client):
+    headers = auth_headers(client)
+    r = client.get("/api/reports/by-state", headers=headers)
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data, list)
+    if data:
+        row = data[0]
+        assert "state" in row
+        assert "opportunities" in row
+        assert "in_execution" in row
+        assert "finalized" in row
+
+
+def test_evolution_endpoint(client):
+    headers = auth_headers(client)
+    r = client.get("/api/reports/evolution?period=30", headers=headers)
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data, list)
+    assert len(data) > 0
+    row = data[0]
+    assert "label" in row and "created" in row and "assigned" in row and "finalized" in row
+
+
+def test_evolution_period_variants(client):
+    headers = auth_headers(client)
+    for period in (30, 90, 180, 365):
+        r = client.get(f"/api/reports/evolution?period={period}", headers=headers)
+        assert r.status_code == 200
+        assert isinstance(r.json(), list)
