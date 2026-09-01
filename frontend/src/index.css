@@ -1015,3 +1015,141 @@ textarea {
 .donut-legend-label {
   font-weight: 500;
 }
+
+/* ===== Fase C: toolbar, buscador, tarjetas ===== */
+.toolbar {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.search {
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 9px;
+  flex: 1;
+  max-width: 340px;
+  background: #fff;
+  color: #8491a4;
+}
+
+.search input {
+  height: 100%;
+  border: 0;
+  outline: 0;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  box-shadow: none;
+}
+
+.view-switch {
+  margin-left: auto;
+  background: #f5f7fa;
+  border-radius: 9px;
+  padding: 3px;
+  display: flex;
+}
+
+.view-btn {
+  border: 0;
+  background: transparent;
+  padding: 9px 15px;
+  border-radius: 7px;
+  color: #4e5e75;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.view-btn.active {
+  background: #fff;
+  color: #075fc9;
+  box-shadow: 0 1px 4px #dce2eb;
+}
+
+.opp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.opportunity-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opportunity-card h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.occ-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.occ-client {
+  font-size: 13px;
+  color: #56657c;
+  font-weight: 600;
+}
+
+.occ-meta {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+  color: #67758b;
+}
+
+.occ-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.occ-payment {
+  font-size: 16px;
+  color: var(--text);
+}
+
+/* Buscador global en el topbar */
+.topbar-search {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 0 12px;
+  gap: 8px;
+  width: 260px;
+  background: #fbfcfe;
+  color: #8491a4;
+}
+
+.topbar-search input {
+  border: 0;
+  outline: 0;
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  box-shadow: none;
+  font-size: 13px;
+}

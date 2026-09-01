@@ -1,3 +1,4 @@
+import { useState, type FormEvent } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import type { Role } from '../api/types'
 import { NotificationBell } from '../components/NotificationBell'
@@ -35,8 +36,6 @@ const NAV_BY_ROLE: Record<Role, { to: string; label: string; icon: string }[]> =
   ],
 }
 
-const COMMON_NAV = [{ to: '/profile/security', label: 'Seguridad', icon: '⚿' }]
-
 const ROLE_LABELS: Record<Role, string> = {
   admin: 'Administrador',
   operations: 'Operaciones',
@@ -54,17 +53,26 @@ function initials(name: string): string {
 export function AppLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [search, setSearch] = useState('')
 
   if (!user) return null
   const links = [
     { to: '/', label: 'Inicio', icon: '⌂' },
     ...(NAV_BY_ROLE[user.role] ?? []),
-    ...COMMON_NAV,
   ]
+  const isStaff = ['admin', 'operations', 'supervisor'].includes(user.role)
 
   const handleLogout = () => {
     logout()
     navigate('/login', { replace: true })
+  }
+
+  const submitSearch = (e: FormEvent) => {
+    e.preventDefault()
+    if (search.trim()) {
+      navigate(`/opportunities?q=${encodeURIComponent(search.trim())}`)
+      setSearch('')
+    }
   }
 
   return (
@@ -74,6 +82,19 @@ export function AppLayout() {
           <span className="brand-mark">✓</span>
           <span className="brand-name">AuditFlow</span>
         </div>
+
+        {isStaff && (
+          <form className="topbar-search" onSubmit={submitSearch}>
+            <span>⌕</span>
+            <input
+              type="search"
+              placeholder="Buscar oportunidades…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </form>
+        )}
+
         <div className="top-actions">
           <NotificationBell />
           <div className="userbox">
@@ -85,6 +106,9 @@ export function AppLayout() {
               {initials(user.full_name)}
             </div>
           </div>
+          <NavLink to="/profile/security" className="btn btn-ghost btn-sm">
+            Seguridad
+          </NavLink>
           <button type="button" className="btn btn-ghost btn-sm" onClick={handleLogout}>
             Salir
           </button>
