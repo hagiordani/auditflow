@@ -61,7 +61,7 @@ services:
     depends_on:
       - api
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost/ || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/ 2>/dev/null && exit 0 || nginx -t"]
       interval: 30s
       timeout: 5s
       retries: 5
