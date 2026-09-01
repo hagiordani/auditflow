@@ -1,7 +1,9 @@
 name: auditflow-prod
 
-# Composición de producción: el TLS lo termina el proxy de Dokploy/Nginx.
-# El servicio `web` expone solo el puerto 80 interno; Dokploy publica el dominio.
+# Composición de producción: el TLS lo termina el proxy de Dokploy (Traefik).
+# El servicio `web` (nginx) se conecta a la red interna (habla con api/db)
+# Y a la red externa `dokploy-network` para que el proxy de Dokploy pueda
+# enrutar el dominio y emitir el certificado. (Solución al 404 del dominio.)
 services:
   db:
     image: postgres:16-alpine
@@ -12,6 +14,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - internal
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -34,6 +38,8 @@ services:
       UPLOAD_DIR: /app/uploads
     volumes:
       - uploads_data:/app/uploads
+    networks:
+      - internal
     depends_on:
       db:
         condition: service_healthy
@@ -49,6 +55,9 @@ services:
     ports:
       # Opcional: prueba temprana sin dominio en http://IP_DEL_VPS:8080
       - "8080:80"
+    networks:
+      - internal
+      - dokploy-network
     depends_on:
       - api
     healthcheck:
@@ -56,6 +65,12 @@ services:
       interval: 30s
       timeout: 5s
       retries: 5
+
+networks:
+  internal:
+    driver: bridge
+  dokploy-network:
+    external: true
 
 volumes:
   db_data:
