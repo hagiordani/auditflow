@@ -71,89 +71,70 @@ story.append(table(
     [38 * mm, 132 * mm],
 ))
 story.append(Spacer(1, 6 * mm))
-story.append(Paragraph("Nota: cifras de horas y montos son una estimación inicial ajustable. Sustituye la tarifa y los valores [ ] antes de enviar.", SMALL))
+story.append(Paragraph("Precio cerrado (tope): $60,000 MXN — incluye el alcance base del MVP.", SMALL))
 story.append(PageBreak())
 
 story.append(Paragraph("1. Resumen ejecutivo", H2))
 story.append(Paragraph("AuditFlow es una plataforma privada web donde el organismo publica servicios de auditoría y los auditores externos autorizados los consultan, se postulan y reciben asignaciones, con control de competencias, fechas, pagos y estados.", BODY))
-for r in [
-    "Dos perfiles: Administrador (centro de control) y Auditor (su agenda).",
-    "Compatibilidad automática: cada oportunidad se muestra solo a auditores calificados.",
-    "Asignación con pago congelado y prevención de fechas cruzadas.",
-    "Ciclo de vida completo (11 estados) con historial de todas las acciones.",
-    "Dashboard ejecutivo con KPIs, mapa de México, rendimiento y evolución.",
-    "Documentos y notificaciones integrados.",
-]:
-    story.append(bullet(r))
+story.append(Paragraph("Esta propuesta cubre el núcleo operativo (MVP) a un precio cerrado de $60,000 MXN, con dos perfiles: Administrador (centro de control) y Auditor (portal).", BODY))
 
-story.append(Paragraph("2. Alcance entregado", H2))
+story.append(Paragraph("2. Alcance incluido en el paquete", H2))
 story.append(table(
-    [["Módulo", "Descripción"],
-     ["Autenticación y acceso", "Login JWT, control por rol, bloqueo por intentos"],
-     ["Usuarios", "Altas/bajas, activación, cambio de rol (2 perfiles)"],
+    [["Módulo", "Qué incluye"],
+     ["Acceso y usuarios", "Login JWT, control por rol, alta/activación de usuarios"],
      ["Auditores", "Catálogo + matriz de competencias con vigencias"],
-     ["Clientes", "Catálogo con contacto y RFC"],
+     ["Clientes", "Catálogo con contacto"],
      ["Oportunidades", "Folio automático, estados, publicación, cancelación"],
-     ["Postulaciones", "Me interesa / No disponible con comentarios"],
+     ["Portal del auditor", "Oportunidades compatibles, Me interesa / No disponible"],
      ["Asignaciones", "Selección, confirmación, pago congelado, sin traslapes"],
-     ["Calendario", "Agenda + bloques de indisponibilidad"],
-     ["Documentos", "Carga y descarga privada"],
-     ["Notificaciones", "In-app en asignación/confirmación/rechazo/cancelación"],
-     ["Dashboard y reportes", "KPIs, donut, rendimiento, mapa, export CSV"],
-     ["Seguridad", "Contraseñas fuertes, rate limit, headers, secretos"]],
+     ["Dashboard y reportes", "KPIs, servicios por estado, export CSV"],
+     ["Despliegue", "Docker + Dokploy + dominio + HTTPS (puesta en marcha)"]],
     [48 * mm, 122 * mm],
 ))
 
-story.append(Paragraph("3. Inversión — desarrollo e implementación", H2))
-story.append(Paragraph("Tarifa por hora considerada: $[750] MXN/h (ajustable).", BODY))
+story.append(Paragraph("3. Inversión — Paquete MVP (precio cerrado)", H2))
 story.append(table(
-    [["#", "Concepto", "Horas", "Monto (MXN)"],
-     ["1", "Arquitectura y base", "80", "$60,000"],
-     ["2", "Usuarios y control de acceso", "40", "$30,000"],
-     ["3", "Auditores y matriz de competencias", "60", "$45,000"],
-     ["4", "Clientes y oportunidades", "80", "$60,000"],
-     ["5", "Portal del auditor", "60", "$45,000"],
-     ["6", "Asignaciones", "60", "$45,000"],
-     ["7", "Calendario, documentos, notificaciones", "80", "$60,000"],
-     ["8", "Dashboard ejecutivo y reportes", "60", "$45,000"],
-     ["9", "Mapa de México y evolución", "40", "$30,000"],
-     ["10", "Rediseño de interfaz High-End", "80", "$60,000"],
-     ["11", "Seguridad y endurecimiento", "40", "$30,000"],
-     ["12", "Pruebas automatizadas (88 tests)", "60", "$45,000"],
-     ["13", "Documentación", "40", "$30,000"],
-     ["14", "Despliegue Hostinger + Dokploy", "40", "$30,000"],
-     ["", "Subtotal desarrollo", "820", "$615,000"]],
-    [12 * mm, 84 * mm, 26 * mm, 30 * mm],
+    [["#", "Concepto", "Monto (MXN)"],
+     ["1", "Fundación y despliegue (API, frontend, Docker, Dokploy, dominio)", "$18,000"],
+     ["2", "Usuarios y control de acceso (2 perfiles)", "$6,000"],
+     ["3", "Auditores y matriz de competencias", "$9,000"],
+     ["4", "Clientes", "$4,500"],
+     ["5", "Oportunidades (folio, estados, publicación)", "$7,500"],
+     ["6", "Portal del auditor (postulaciones)", "$6,000"],
+     ["7", "Asignaciones (pago congelado, confirmación)", "$6,000"],
+     ["8", "Dashboard y reportes básicos", "$3,000"],
+     ["", "TOTAL (tope)", "$60,000"]],
+    [12 * mm, 118 * mm, 40 * mm],
 ))
 
-story.append(Paragraph("4. Servicios opcionales (recurrentes)", H2))
+story.append(Paragraph("4. Módulos opcionales (no incluidos)", H2))
 story.append(table(
-    [["Concepto", "Frecuencia", "Monto (MXN)"],
-     ["Mantenimiento y soporte", "Mensual", "$[12,000]"],
-     ["Capacitación al equipo", "Única", "$[8,000]"],
-     ["Hosting/dominio (VPS Hostinger)", "Por su cuenta", "—"]],
-    [90 * mm, 40 * mm, 40 * mm],
+    [["Concepto", "Monto estimado (MXN)"],
+     ["Mapa interactivo de México + evolución temporal", "$12,000"],
+     ["Rediseño visual premium adicional", "$10,000"],
+     ["Calendario avanzado + documentos", "$8,000"],
+     ["Mantenimiento y soporte mensual", "$6,000/mes"]],
+    [112 * mm, 58 * mm],
 ))
 
 story.append(Paragraph("5. Resumen económico", H2))
 story.append(table(
     [["Concepto", "Monto (MXN)"],
-     ["Desarrollo e implementación", "$615,000"],
-     ["Capacitación (opcional)", "$8,000"],
-     ["Total inversión inicial", "$623,000"],
-     ["Mantenimiento mensual (opcional)", "$12,000/mes"]],
+     ["Paquete MVP (precio cerrado)", "$60,000"],
+     ["Módulos opcionales (a elegir)", "Según tabla"],
+     ["Mantenimiento mensual (opcional)", "$6,000/mes"]],
     [110 * mm, 60 * mm],
 ))
 story.append(Paragraph("IVA no incluido, se adiciona conforme a la legislación vigente.", SMALL))
 
 story.append(Paragraph("6. Forma de pago", H2))
-story.append(bullet("Anticipo (arranque): 40%"))
-story.append(bullet("Entrega del MVP funcional (demo): 40%"))
+story.append(bullet("Anticipo (arranque): 50%"))
+story.append(bullet("Entrega del MVP funcional: 30%"))
 story.append(bullet("Aceptación final y puesta en producción: 20%"))
 
 story.append(Paragraph("7. Condiciones", H2))
-story.append(bullet("Incluye: código fuente, base de datos, despliegue inicial y documentación."))
-story.append(bullet("No incluye: fases futuras (WhatsApp, facturación automática, app móvil, IA, integraciones contables/CRM/ERP)."))
+story.append(bullet("Incluye: código fuente, despliegue inicial y documentación básica."))
+story.append(bullet("No incluye: los módulos de la sección 4 ni fases futuras (WhatsApp, facturación electrónica, app móvil, IA, integraciones contables/CRM/ERP)."))
 story.append(bullet("Cambios de alcance posteriores se cotizan por separado."))
 story.append(bullet("Garantía de funcionamiento: 30 días tras la aceptación."))
 

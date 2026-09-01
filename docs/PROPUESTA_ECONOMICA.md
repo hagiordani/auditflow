@@ -9,8 +9,7 @@
 | **Moneda** | MXN (pesos mexicanos) |
 | **Vigencia de la oferta** | 30 días naturales |
 
-> **Nota:** las cifras de horas y montos son una **estimación inicial ajustable**.
-> Sustituye la tarifa por hora y los valores marcados con `[ ]` antes de enviar.
+> **Precio cerrado (tope): $60,000 MXN** — incluye el alcance base del MVP descrito abajo.
 
 ---
 
@@ -18,85 +17,68 @@
 
 AuditFlow es una **plataforma privada web** donde el organismo publica servicios de
 auditoría y los auditores externos autorizados los consultan, se postulan y reciben
-asignaciones, con control completo de competencias, fechas, pagos y estados.
+asignaciones, con control de competencias, fechas, pagos y estados.
 
-Características principales:
-- **Dos perfiles**: Administrador (centro de control) y Auditor (su agenda).
-- **Compatibilidad automática**: cada oportunidad se muestra solo a auditores calificados (competencia vigente + fechas libres).
-- **Asignación con pago congelado** y prevención de fechas cruzadas.
-- **Ciclo de vida** completo (11 estados) con **historial/bitácora** de todas las acciones.
-- **Dashboard ejecutivo** con KPIs, mapa de México, rendimiento y evolución.
-- **Documentos y notificaciones** integrados.
+Esta propuesta cubre el **núcleo operativo (MVP)** a un **precio cerrado de $60,000 MXN**,
+con dos perfiles: **Administrador** (centro de control) y **Auditor** (portal).
 
-## 2. Alcance entregado
+## 2. Alcance incluido en el paquete ($60,000 MXN)
 
-| Módulo | Descripción |
+| Módulo | Qué incluye |
 |---|---|
-| Autenticación y acceso | Login JWT, recuperación, control por rol, bloqueo por intentos |
-| Usuarios | Altas/bajas, activación, cambio de rol (2 perfiles) |
+| Acceso y usuarios | Login JWT, control por rol, alta/activación de usuarios |
 | Auditores | Catálogo + matriz de competencias con vigencias |
-| Clientes | Catálogo con contacto y RFC |
+| Clientes | Catálogo con contacto |
 | Oportunidades | Folio automático, estados, publicación, cancelación |
-| Postulaciones | "Me interesa" / "No disponible" con comentarios |
+| Portal del auditor | Oportunidades compatibles, "Me interesa" / "No disponible" |
 | Asignaciones | Selección, confirmación, pago congelado, sin traslapes |
-| Calendario y disponibilidad | Agenda + bloques de indisponibilidad |
-| Documentos | Carga y descarga privada (orden, agenda, reporte, factura) |
-| Notificaciones | In-app en asignación/confirmación/rechazo/cancelación |
-| Dashboard y reportes | KPIs, donut, rendimiento, mapa de México, export CSV |
-| Seguridad | Contraseñas fuertes, rate limit, headers, secretos |
+| Dashboard y reportes | KPIs, servicios por estado, export CSV |
+| Despliegue | Docker + Dokploy + dominio + HTTPS (puesta en marcha) |
 
-## 3. Inversión — desarrollo e implementación
+## 3. Inversión — Paquete MVP (precio cerrado)
 
-**Tarifa por hora considerada: `$[750] MXN/h`** (ajustable).
-
-| # | Concepto | Horas est. | Monto (MXN) |
-|---|---|---|---|
-| 1 | Arquitectura y base (API, frontend, Docker, auth, CI) | 80 | $60,000 |
-| 2 | Usuarios y control de acceso (2 perfiles, RBAC) | 40 | $30,000 |
-| 3 | Auditores y matriz de competencias | 60 | $45,000 |
-| 4 | Clientes y oportunidades (estados, folio, bitácora) | 80 | $60,000 |
-| 5 | Portal del auditor (compatibilidad, postulaciones) | 60 | $45,000 |
-| 6 | Asignaciones (pago congelado, traslapes) | 60 | $45,000 |
-| 7 | Calendario, disponibilidad, documentos, notificaciones | 80 | $60,000 |
-| 8 | Dashboard ejecutivo y reportes (KPIs, CSV) | 60 | $45,000 |
-| 9 | Mapa de México y evolución temporal | 40 | $30,000 |
-| 10 | Rediseño de interfaz High-End | 80 | $60,000 |
-| 11 | Seguridad y endurecimiento | 40 | $30,000 |
-| 12 | Pruebas automatizadas (88 tests) | 60 | $45,000 |
-| 13 | Documentación (manual, guion de video) | 40 | $30,000 |
-| 14 | Despliegue en Hostinger + Dokploy (SSL, backups) | 40 | $30,000 |
-| | **Subtotal desarrollo** | **820** | **$615,000** |
-
-## 4. Servicios opcionales (recurrentes)
-
-| Concepto | Frecuencia | Monto (MXN) |
+| # | Concepto | Monto (MXN) |
 |---|---|---|
-| Mantenimiento, soporte y actualizaciones | Mensual | $[12,000] |
-| Capacitación al equipo (sesión guiada) | Única | $[8,000] |
-| Hosting/dominio (VPS Hostinger + dominio) | Por su cuenta | — |
+| 1 | Fundación y despliegue (API, frontend, Docker, Dokploy, dominio) | $18,000 |
+| 2 | Usuarios y control de acceso (2 perfiles) | $6,000 |
+| 3 | Auditores y matriz de competencias | $9,000 |
+| 4 | Clientes | $4,500 |
+| 5 | Oportunidades (folio, estados, publicación) | $7,500 |
+| 6 | Portal del auditor (postulaciones) | $6,000 |
+| 7 | Asignaciones (pago congelado, confirmación) | $6,000 |
+| 8 | Dashboard y reportes básicos | $3,000 |
+| | **TOTAL (tope)** | **$60,000** |
+
+## 4. Módulos opcionales (no incluidos; cotizan aparte)
+
+| Concepto | Monto estimado (MXN) |
+|---|---|
+| Mapa interactivo de México + evolución temporal | $12,000 |
+| Rediseño visual premium adicional | $10,000 |
+| Calendario avanzado + documentos | $8,000 |
+| Mantenimiento y soporte mensual | $6,000/mes |
 
 ## 5. Resumen económico
 
 | Concepto | Monto (MXN) |
 |---|---|
-| Desarrollo e implementación (una sola vez) | $615,000 |
-| Capacitación (opcional) | $8,000 |
-| **Total inversión inicial** | **$623,000** |
-| Mantenimiento mensual (opcional) | $12,000/mes |
+| **Paquete MVP (precio cerrado)** | **$60,000** |
+| Módulos opcionales (a elegir) | Según tabla |
+| Mantenimiento mensual (opcional) | $6,000/mes |
 
 > IVA no incluido, se adiciona conforme a la legislación vigente.
 
-## 6. Forma de pago propuesta
+## 6. Forma de pago
 
 | Hito | % |
 |---|---|
-| Anticipo (arranque del proyecto) | 40% |
-| Entrega del MVP funcional (demo) | 40% |
+| Anticipo (arranque) | 50% |
+| Entrega del MVP funcional | 30% |
 | Aceptación final y puesta en producción | 20% |
 
 ## 7. Condiciones
 
-- Incluye: código fuente, base de datos, despliegue inicial y documentación.
-- No incluye: fases futuras (WhatsApp, facturación electrónica automática, app móvil nativa, IA de asignación, integraciones contables/CRM/ERP).
-- Los cambios de alcance posteriores se cotizan por separado.
-- La garantía de funcionamiento cubre 30 días tras la aceptación.
+- Incluye: código fuente, despliegue inicial (Docker + Dokploy + dominio) y documentación básica.
+- No incluye: los módulos de la sección 4 (opcionales) ni fases futuras (WhatsApp, facturación electrónica, app móvil, IA, integraciones contables/CRM/ERP).
+- Cambios de alcance posteriores se cotizan por separado.
+- Garantía de funcionamiento: 30 días tras la aceptación.
