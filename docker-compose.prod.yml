@@ -52,9 +52,6 @@ services:
   web:
     build: ./frontend
     restart: unless-stopped
-    ports:
-      # Opcional: prueba temprana sin dominio en http://IP_DEL_VPS:8080
-      - "8080:80"
     networks:
       - internal
       - dokploy-network
