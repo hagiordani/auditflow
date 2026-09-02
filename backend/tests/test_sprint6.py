@@ -1,6 +1,7 @@
 """Pruebas del Sprint 6: disponibilidad, documentos, notificaciones y calendario."""
 
 import io
+from datetime import date, timedelta
 
 from .utils import auth_headers, login
 
@@ -57,7 +58,7 @@ def create_published(client, headers, title, comp_id, start, end, responsible=No
             "end_date": end,
             "number_of_days": 3,
             "payment_amount": 10000.0,
-            "application_deadline": "2026-09-01",
+            "application_deadline": (date.today() + timedelta(days=30)).isoformat(),
             "responsible_user_id": responsible,
             "competencies": [{"competency_id": comp_id, "required_level": "Auditor"}],
         },

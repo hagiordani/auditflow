@@ -11,6 +11,8 @@ import { OpportunitiesPage } from './pages/OpportunitiesPage'
 import { ReportsPage } from './pages/ReportsPage'
 import { SecurityPage } from './pages/SecurityPage'
 import { StaffCalendarPage } from './pages/StaffCalendarPage'
+import { PersonalDetailPage } from './pages/PersonalDetailPage'
+import { PersonalPage } from './pages/PersonalPage'
 import { CompetenciesPage } from './pages/admin/CompetenciesPage'
 import { UsersPage } from './pages/admin/UsersPage'
 import { AuditorApplicationsPage } from './pages/auditor/AuditorApplicationsPage'
@@ -63,6 +65,8 @@ export default function App() {
           <Route element={<RoleRoute roles={['admin']} />}>
             <Route path="/admin/users" element={<UsersPage />} />
             <Route path="/competencies" element={<CompetenciesPage />} />
+            <Route path="/personal" element={<PersonalPage />} />
+            <Route path="/personal/:personalId" element={<PersonalDetailPage />} />
           </Route>
         </Route>
       </Route>

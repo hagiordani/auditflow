@@ -1338,3 +1338,40 @@ textarea {
   height: 8px;
   border-radius: 4px;
 }
+
+/* Personal: formulario */
+.form-field {
+  margin-top: 6px;
+}
+
+.form-field > label {
+  display: block;
+}
+
+.check-list {
+  display: grid;
+  gap: 2px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+  cursor: pointer;
+}
+
+.checkbox-row input {
+  width: auto;
+  height: auto;
+}
+
+.email-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}

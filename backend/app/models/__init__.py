@@ -21,6 +21,14 @@ from app.models.opportunity import (
     OpportunityCompetency,
     OpportunityStatus,
 )
+from app.models.personal import (
+    Area,
+    Personal,
+    PersonalArea,
+    PersonalEmail,
+    PersonalRole,
+    Role,
+)
 from app.models.user import User, UserRole
 
 __all__ = [
@@ -49,4 +57,10 @@ __all__ = [
     "DOCUMENT_TYPES",
     "ENTITY_TYPES",
     "Notification",
+    "Role",
+    "Area",
+    "Personal",
+    "PersonalEmail",
+    "PersonalRole",
+    "PersonalArea",
 ]
