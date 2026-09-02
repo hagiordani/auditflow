@@ -113,6 +113,7 @@ story.append(table(
      ["Mapa interactivo de México + evolución temporal", "$12,000"],
      ["Rediseño visual premium adicional", "$10,000"],
      ["Calendario avanzado + documentos", "$8,000"],
+     ["Capacitación al equipo (sesión guiada)", "$8,000"],
      ["Mantenimiento y soporte mensual", "$6,000/mes"]],
     [112 * mm, 58 * mm],
 ))
