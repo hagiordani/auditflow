@@ -10,13 +10,15 @@ Uso (desde la raíz del repo):
 
 from __future__ import annotations
 
+import os
 from datetime import date, timedelta
 
 import httpx
 
-BASE = "http://localhost:8001"
-ADMIN_EMAIL = "admin@auditflow.local"
-ADMIN_PASSWORD = "Admin123!"
+# Configurables por entorno (para apuntar a local o a producción)
+BASE = os.environ.get("AUDITFLOW_BASE", "http://localhost:8001")
+ADMIN_EMAIL = os.environ.get("AUDITFLOW_EMAIL", "admin@auditflow.local")
+ADMIN_PASSWORD = os.environ.get("AUDITFLOW_PASSWORD", "Admin123!")
 
 STATUS = {
     "published": "published",
