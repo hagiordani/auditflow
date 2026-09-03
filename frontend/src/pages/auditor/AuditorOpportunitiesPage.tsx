@@ -103,10 +103,16 @@ interface Filters {
   offerMax?: string
   dateFrom?: string
   dateTo?: string
-  rol?: string
+  duration?: string
 }
 
-const ROLE_CATALOG = ['Evaluador', 'Evaluador e Instructor', 'Evaluador, Instructor y Examinador', 'Inspector', 'Instructor']
+const DURATION_CATALOG = [
+  { value: '1', label: '1 día' },
+  { value: '2', label: '2 días' },
+  { value: '3', label: '3 días' },
+  { value: '5', label: '5 días' },
+  { value: '7', label: '7 días' },
+]
 
 export function AuditorOpportunitiesPage() {
   const [opportunities, setOpportunities] = useState<AuditorOpportunity[]>([])
@@ -159,7 +165,7 @@ export function AuditorOpportunitiesPage() {
       if (filters.dateTo && o.start_date && o.start_date > filters.dateTo) return false
       if (filters.offer && (o.payment_amount ?? 0) < Number(filters.offer)) return false
       if (filters.offerMax && (o.payment_amount ?? 0) > Number(filters.offerMax)) return false
-      if (filters.rol && !o.competencies.some((c) => c.required_level.toLowerCase().includes(filters.rol!.toLowerCase()))) return false
+      if (filters.duration && o.number_of_days !== Number(filters.duration)) return false
       return true
     })
   }, [opportunities, q, filters])
@@ -191,11 +197,11 @@ export function AuditorOpportunitiesPage() {
 
   const postuladas = applications.filter((a) => a.decision === 'interested').length
 
-  const activeFilters = [filters.state, filters.offer, filters.offerMax, filters.dateFrom, filters.dateTo, filters.rol].filter(Boolean).length
+  const activeFilters = [filters.state, filters.offer, filters.offerMax, filters.dateFrom, filters.dateTo, filters.duration].filter(Boolean).length
 
   const activeChips: { key: string; label: string; clear?: Partial<Filters> }[] = []
   if (filters.state) activeChips.push({ key: 'state', label: filters.state })
-  if (filters.rol) activeChips.push({ key: 'rol', label: `Rol: ${filters.rol}` })
+  if (filters.duration) activeChips.push({ key: 'duration', label: `${filters.duration} días` })
   if (filters.offer) activeChips.push({ key: 'offer', label: `≥ $${Number(filters.offer).toLocaleString('es-MX')}` })
   if (filters.offerMax) activeChips.push({ key: 'offerMax', label: `≤ $${Number(filters.offerMax).toLocaleString('es-MX')}` })
   if (filters.dateFrom || filters.dateTo) activeChips.push({ key: 'dateFrom', label: `${filters.dateFrom ?? '…'} – ${filters.dateTo ?? '…'}`, clear: { dateFrom: undefined, dateTo: undefined } })
@@ -533,7 +539,7 @@ function AdvancedFilters({ filters, setFilters, stateOptions, count, onClose }: 
   if (filters.dateFrom || filters.dateTo) activeSummary.push(`${filters.dateFrom ?? '…'} – ${filters.dateTo ?? '…'}`)
   if (filters.offer) activeSummary.push(`≥ $${Number(filters.offer).toLocaleString('es-MX')}`)
   if (filters.offerMax) activeSummary.push(`≤ $${Number(filters.offerMax).toLocaleString('es-MX')}`)
-  if (filters.rol) activeSummary.push(`Rol: ${filters.rol}`)
+  if (filters.duration) activeSummary.push(`${filters.duration} días`)
   return (
     <div className="mk-modal-overlay" onClick={onClose}>
       <div className="mk-drawer mk-adv" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Filtros">
@@ -576,10 +582,10 @@ function AdvancedFilters({ filters, setFilters, stateOptions, count, onClose }: 
         </div>
 
         <div className="mk-adv-section">
-          <span className="mk-section-label">👤 Rol</span>
-          <select className="mk-adv-select" value={filters.rol ?? ''} onChange={(e) => set('rol', e.target.value)}>
-            <option value="">Todos</option>
-            {ROLE_CATALOG.map((r) => <option key={r} value={r}>{r}</option>)}
+          <span className="mk-section-label">⏱ Duración</span>
+          <select className="mk-adv-select" value={filters.duration ?? ''} onChange={(e) => set('duration', e.target.value)}>
+            <option value="">Cualquier duración</option>
+            {DURATION_CATALOG.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
           </select>
         </div>
 

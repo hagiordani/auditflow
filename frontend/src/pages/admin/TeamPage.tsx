@@ -11,6 +11,7 @@ import { EmptyState } from '../../components/dashboard/EmptyState'
 type Catalog = 'auditores' | 'admin'
 type ViewMode = 'list' | 'grid'
 const TYPE_LABELS: Record<string, string> = { interno: 'Interno', externo: 'Externo' }
+const ROLE_LABELS: Record<string, string> = { admin: 'Administrador', operations: 'Operaciones', supervisor: 'Supervisor' }
 const ROLE_CATALOG = ['Evaluador', 'Evaluador e Instructor', 'Evaluador, Instructor y Examinador', 'Inspector', 'Instructor']
 const AVAIL_LABELS: Record<string, { label: string; tone: string }> = {
   available: { label: 'Disponible', tone: 'ok' },
@@ -267,7 +268,7 @@ function AuditorTable({ rows, menuFor, setMenuFor, onOpen, onToggle }: { rows: R
                       <button type="button" onClick={() => { setMenuFor(null); onOpen(r) }}>Editar perfil</button>
                       <button type="button" onClick={() => { setMenuFor(null); onOpen(r) }}>Ver competencias</button>
                       <Link to="/calendar" onClick={() => setMenuFor(null)}>Ver agenda</Link>
-                      <Link to="/auditor/opportunities" onClick={() => setMenuFor(null)}>Oportunidades compatibles</Link>
+                      <Link to="/opportunities" onClick={() => setMenuFor(null)}>Oportunidades compatibles</Link>
                       <button type="button" onClick={() => { setMenuFor(null); onToggle(r) }}>{r.is_active ? 'Desactivar' : 'Activar'}</button>
                     </div>
                   )}
@@ -308,7 +309,7 @@ function AdminTable({ rows, onOpen, onToggle }: { rows: Row[]; onOpen: (r: Row) 
           {rows.map((r) => (
             <tr key={r.id} className="tm-row" onClick={() => onOpen(r)}>
               <td><div className="oi-user-cell"><span className="oi-avatar">{initials(r.full_name)}</span><span><strong>{r.full_name}</strong><div className="muted small">{r.email}</div></span></div></td>
-              <td><span className="badge badge-primary">Administrador</span></td>
+              <td><span className="badge badge-primary">{ROLE_LABELS[r.role] ?? r.role}</span></td>
               <td><span className={`badge ${r.is_active ? 'badge-active' : 'badge-inactive'}`}>{r.is_active ? 'Activo' : 'Inactivo'}</span></td>
               <td>{timeAgo(r.created_at)}</td>
               <td onClick={(e) => e.stopPropagation()}><button type="button" className="btn btn-sm btn-ghost" onClick={() => onToggle(r)}>{r.is_active ? 'Desactivar' : 'Activar'}</button></td>
@@ -376,7 +377,7 @@ function AuditorDrawer({ row, currentUserId, onClose, onToggle, onSaved, onToast
               <button type="button" className="btn btn-primary" onClick={() => setEditing(true)}>Editar perfil</button>
               <button type="button" className="btn btn-ghost" disabled={row.id === currentUserId} onClick={() => onToggle(row)}>{row.is_active ? 'Desactivar' : 'Activar'}</button>
               <Link to="/calendar" className="btn btn-ghost">Ver agenda</Link>
-              <Link to="/auditor/opportunities" className="btn btn-ghost">Oportunidades</Link>
+              <Link to="/opportunities" className="btn btn-ghost">Oportunidades</Link>
             </div>
           </>
         )}
@@ -390,10 +391,10 @@ function AdminDrawer({ row, currentUserId, onClose, onToggle }: { row: Row; curr
     <div className="mk-drawer-overlay" onClick={onClose}>
       <div className="mk-drawer" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Detalle de administrador">
         <div className="mk-drawer-head"><div className="oi-user-cell"><span className="oi-avatar">{initials(row.full_name)}</span><div><strong>{row.full_name}</strong><div className="muted small">{row.email}</div></div></div><button type="button" className="btn btn-ghost btn-sm" onClick={onClose}>✕</button></div>
-        <div className="mk-drawer-status" style={{ color: '#145da0' }}>● Administrador</div>
+        <div className="mk-drawer-status" style={{ color: '#145da0' }}>● {ROLE_LABELS[row.role] ?? row.role}</div>
         <dl className="oc-drawer-rows">
           <div className="oc-drawer-row"><dt>Correo</dt><dd>{row.email}</dd></div>
-          <div className="oc-drawer-row"><dt>Rol</dt><dd>Administrador</dd></div>
+          <div className="oc-drawer-row"><dt>Rol</dt><dd>{ROLE_LABELS[row.role] ?? row.role}</dd></div>
           <div className="oc-drawer-row"><dt>Estado</dt><dd>{row.is_active ? 'Activo' : 'Inactivo'}</dd></div>
           <div className="oc-drawer-row"><dt>Fecha de alta</dt><dd>{timeAgo(row.created_at)}</dd></div>
         </dl>

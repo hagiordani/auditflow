@@ -140,7 +140,7 @@ export function buildKpis(
       hint: 'Finalizadas del flujo activo',
       trend: completed,
       tone: compliance >= 90 ? 'success' : compliance >= 70 ? 'warning' : 'danger',
-      to: '/reports',
+      to: '/opportunities',
     },
     {
       label: 'Auditores activos',
