@@ -452,6 +452,50 @@ def evolution(
     ]
 
 
+@router.get("/trends")
+def trends(
+    period: int = Query(default=30, ge=7, le=365),
+    db: Session = Depends(get_db),
+    _: User = Depends(require_roles(*READERS)),
+):
+    """Comparativa real del flujo: periodo actual vs anterior (para tendencias)."""
+    final_statuses = ("completed", "invoice_received", "paid")
+    end = datetime.now(timezone.utc)
+    start = end - timedelta(days=period)
+    prev_start = start - timedelta(days=period)
+
+    def window_counts(lo: datetime, hi: datetime) -> dict:
+        created = (
+            db.query(func.count(AuditOpportunity.id))
+            .filter(AuditOpportunity.created_at >= lo, AuditOpportunity.created_at < hi)
+            .scalar()
+            or 0
+        )
+        assigned = (
+            db.query(func.count(Assignment.id))
+            .filter(Assignment.assigned_at >= lo, Assignment.assigned_at < hi)
+            .scalar()
+            or 0
+        )
+        logs = (
+            db.query(AuditLog)
+            .filter(
+                AuditLog.created_at >= lo,
+                AuditLog.created_at < hi,
+                AuditLog.action == "transition",
+            )
+            .all()
+        )
+        finalized = sum(
+            1
+            for l in logs
+            if isinstance(l.new_data, dict) and l.new_data.get("status") in final_statuses
+        )
+        return {"created": created, "assigned": assigned, "finalized": finalized}
+
+    return {"current": window_counts(start, end), "previous": window_counts(prev_start, start)}
+
+
 @router.get("/export.csv")
 def export_csv(db: Session = Depends(get_db), _: User = Depends(require_roles(*READERS))):
     """Exportación de oportunidades a CSV (compatible con Excel)."""

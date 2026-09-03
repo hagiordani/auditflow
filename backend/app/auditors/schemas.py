@@ -5,7 +5,7 @@ from datetime import date
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.core.validators import Email, Password
-from app.models.auditor import AVAILABILITY_STATUSES, COMPETENCY_LEVELS
+from app.models.auditor import AUDITOR_TYPES, AVAILABILITY_STATUSES, COMPETENCY_LEVELS
 
 
 class CompetencyBrief(BaseModel):
@@ -42,6 +42,9 @@ class AuditorOut(BaseModel):
     tax_id: str | None
     bank_information: str | None
     availability_status: str
+    auditor_type: str
+    specialty: str | None
+    roles: str | None
     rating: float | None
     notes: str | None
     competencies: list[AuditorCompetencyOut]
@@ -64,6 +67,9 @@ class AuditorCreate(BaseModel):
     tax_id: str | None = Field(default=None, max_length=30)
     bank_information: str | None = None
     availability_status: str = Field(default="available", pattern="^(available|busy|unavailable)$")
+    auditor_type: str = Field(default="externo", pattern="^(interno|externo)$")
+    specialty: str | None = Field(default=None, max_length=120)
+    roles: str | None = Field(default=None, max_length=200)
     notes: str | None = None
 
 
@@ -77,6 +83,9 @@ class AuditorUpdate(BaseModel):
     availability_status: str | None = Field(
         default=None, pattern="^(available|busy|unavailable)$"
     )
+    auditor_type: str | None = Field(default=None, pattern="^(interno|externo)$")
+    specialty: str | None = Field(default=None, max_length=120)
+    roles: str | None = Field(default=None, max_length=200)
     rating: float | None = Field(default=None, ge=0, le=5)
     notes: str | None = None
 

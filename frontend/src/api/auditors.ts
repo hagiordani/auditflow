@@ -12,6 +12,9 @@ export interface AuditorCreateInput {
   tax_id?: string | null
   bank_information?: string | null
   availability_status?: AvailabilityStatus
+  auditor_type?: string
+  specialty?: string | null
+  roles?: string | null
   notes?: string | null
 }
 
@@ -23,6 +26,9 @@ export interface AuditorUpdateInput {
   tax_id?: string | null
   bank_information?: string | null
   availability_status?: AvailabilityStatus
+  auditor_type?: string
+  specialty?: string | null
+  roles?: string | null
   rating?: number | null
   notes?: string | null
 }

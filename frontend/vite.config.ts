@@ -3,7 +3,7 @@ import { defineConfig } from 'vite'
 
 const apiProxy = {
   '/api': {
-    target: 'http://localhost:8000',
+    target: 'http://localhost:8001',
     changeOrigin: true,
   },
 }
@@ -11,11 +11,11 @@ const apiProxy = {
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
+    port: 5174,
     proxy: apiProxy,
   },
   preview: {
-    port: 5173,
+    port: 5174,
     proxy: apiProxy,
   },
 })

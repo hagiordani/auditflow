@@ -60,6 +60,9 @@ def auditor_out(auditor: Auditor) -> AuditorOut:
         tax_id=auditor.tax_id,
         bank_information=auditor.bank_information,
         availability_status=auditor.availability_status,
+        auditor_type=auditor.auditor_type,
+        specialty=auditor.specialty,
+        roles=auditor.roles,
         rating=auditor.rating,
         notes=auditor.notes,
         competencies=[AuditorCompetencyOut.model_validate(ac) for ac in auditor.competencies],
@@ -144,6 +147,9 @@ def create_auditor(
         tax_id=payload.tax_id,
         bank_information=payload.bank_information,
         availability_status=payload.availability_status,
+        auditor_type=payload.auditor_type,
+        specialty=payload.specialty,
+        roles=payload.roles,
         notes=payload.notes,
     )
     db.add(auditor)
@@ -176,6 +182,9 @@ def update_auditor(
         "tax_id",
         "bank_information",
         "availability_status",
+        "auditor_type",
+        "specialty",
+        "roles",
         "rating",
         "notes",
     ):

@@ -5,14 +5,13 @@ import type { ByStateMetric } from '../api/reports'
 import { resolveState } from '../utils/mexico'
 import mexicoData from '../assets/mexico.json'
 
-type MetricKey = 'opportunities' | 'in_execution' | 'finalized' | 'auditors' | 'clients'
+type MetricKey = 'opportunities' | 'auditors' | 'clients' | 'compliance'
 
 const METRICS: { key: MetricKey; label: string }[] = [
-  { key: 'opportunities', label: 'Oportunidades' },
-  { key: 'in_execution', label: 'En ejecución' },
-  { key: 'finalized', label: 'Finalizadas' },
+  { key: 'opportunities', label: 'Auditorías' },
   { key: 'auditors', label: 'Auditores' },
   { key: 'clients', label: 'Clientes' },
+  { key: 'compliance', label: 'Cumplimiento' },
 ]
 
 const collection = mexicoData as unknown as {
@@ -38,7 +37,16 @@ export function MexicoMap({ data }: { data: ByStateMetric[] }) {
     const map = new Map<string, number>()
     for (const row of data) {
       const state = resolveState(row.state)
-      if (state) map.set(state.name, row[metric])
+      if (state) {
+        let value: number
+        if (metric === 'compliance') {
+          const denom = row.finalized + row.in_execution
+          value = denom > 0 ? Math.round((row.finalized * 100) / denom) : 0
+        } else {
+          value = row[metric]
+        }
+        map.set(state.name, value)
+      }
     }
     return map
   }, [data, metric])
