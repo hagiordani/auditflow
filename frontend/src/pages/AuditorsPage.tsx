@@ -11,6 +11,11 @@ const AVAILABILITY_LABELS: Record<AvailabilityStatus, string> = {
   unavailable: 'No disponible',
 }
 
+const AUDITOR_TYPE_LABELS: Record<string, string> = {
+  interno: 'Interno',
+  externo: 'Externo',
+}
+
 const EMPTY_FORM = {
   email: '',
   full_name: '',
@@ -19,6 +24,9 @@ const EMPTY_FORM = {
   city: '',
   state: '',
   daily_rate: '',
+  auditor_type: 'externo',
+  specialty: '',
+  roles: '',
 }
 
 export function AuditorsPage() {
@@ -53,6 +61,9 @@ export function AuditorsPage() {
         city: form.city.trim() || null,
         state: form.state.trim() || null,
         daily_rate: form.daily_rate ? Number(form.daily_rate) : null,
+        auditor_type: form.auditor_type,
+        specialty: form.specialty.trim() || null,
+        roles: form.roles.trim() || null,
       })
       setAuditors((prev) => [...prev, created])
       setForm(EMPTY_FORM)
@@ -156,6 +167,37 @@ export function AuditorsPage() {
               onChange={(e) => setForm({ ...form, daily_rate: e.target.value })}
             />
 
+            <div className="form-row">
+              <div>
+                <label htmlFor="a-type">Tipo de auditor</label>
+                <select
+                  id="a-type"
+                  value={form.auditor_type}
+                  onChange={(e) => setForm({ ...form, auditor_type: e.target.value })}
+                >
+                  <option value="externo">Externo</option>
+                  <option value="interno">Interno</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="a-specialty">Cargo / Especialidad</label>
+                <input
+                  id="a-specialty"
+                  placeholder="Calidad, Seguridad…"
+                  value={form.specialty}
+                  onChange={(e) => setForm({ ...form, specialty: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <label htmlFor="a-roles">Roles (separados por ';' — Evaluador, Inspector…)</label>
+            <input
+              id="a-roles"
+              placeholder="Evaluador; Inspector"
+              value={form.roles}
+              onChange={(e) => setForm({ ...form, roles: e.target.value })}
+            />
+
             {formError && <div className="alert alert-error">{formError}</div>}
 
             <button type="submit" className="btn btn-primary" disabled={saving}>
@@ -174,6 +216,9 @@ export function AuditorsPage() {
                 <thead>
                   <tr>
                     <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Cargo / Especialidad</th>
+                    <th>Roles</th>
                     <th>Ciudad</th>
                     <th>Tarifa</th>
                     <th>Competencias</th>
@@ -188,6 +233,25 @@ export function AuditorsPage() {
                           {a.full_name}
                         </Link>
                         <div className="muted small">{a.email}</div>
+                      </td>
+                      <td>
+                        <span className="badge badge-primary">
+                          {AUDITOR_TYPE_LABELS[a.auditor_type] ?? '—'}
+                        </span>
+                      </td>
+                      <td>{a.specialty || '—'}</td>
+                      <td>
+                        {a.roles ? (
+                          <div className="oi-cred-badges">
+                            {a.roles.split(';').map((r) => (
+                              <span key={r.trim()} className="oi-cred-badge">
+                                {r.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          '—'
+                        )}
                       </td>
                       <td>
                         {a.city || '—'}
@@ -206,7 +270,7 @@ export function AuditorsPage() {
                   ))}
                   {auditors.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="muted">
+                      <td colSpan={8} className="muted">
                         Sin auditores todavía.
                       </td>
                     </tr>

@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { useAuth } from './context/AuthContext'
 import { AppLayout } from './layouts/AppLayout'
 import { AuditorDetailPage } from './pages/AuditorDetailPage'
 import { AuditorsPage } from './pages/AuditorsPage'
@@ -8,17 +9,18 @@ import { LoginPage } from './pages/Login'
 import { OpportunityDetailPage } from './pages/OpportunityDetailPage'
 import { OpportunityFormPage } from './pages/OpportunityFormPage'
 import { OpportunitiesPage } from './pages/OpportunitiesPage'
-import { ReportsPage } from './pages/ReportsPage'
 import { SecurityPage } from './pages/SecurityPage'
 import { StaffCalendarPage } from './pages/StaffCalendarPage'
 import { PersonalDetailPage } from './pages/PersonalDetailPage'
 import { PersonalPage } from './pages/PersonalPage'
 import { CompetenciesPage } from './pages/admin/CompetenciesPage'
 import { UsersPage } from './pages/admin/UsersPage'
+import { TeamPage } from './pages/admin/TeamPage'
 import { AuditorApplicationsPage } from './pages/auditor/AuditorApplicationsPage'
 import { AuditorAssignmentsPage } from './pages/auditor/AuditorAssignmentsPage'
 import { AuditorCalendarPage } from './pages/auditor/AuditorCalendarPage'
 import { AuditorDocumentsPage } from './pages/auditor/AuditorDocumentsPage'
+import { AuditorHomePage } from './pages/auditor/AuditorHomePage'
 import { AuditorOpportunitiesPage } from './pages/auditor/AuditorOpportunitiesPage'
 import { AuditorOpportunityDetailPage } from './pages/auditor/AuditorOpportunityDetailPage'
 import { AuditorProfilePage } from './pages/auditor/AuditorProfilePage'
@@ -31,7 +33,7 @@ export default function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<HomeRouter />} />
           <Route path="/profile/security" element={<SecurityPage />} />
 
           <Route element={<RoleRoute roles={['admin', 'operations']} />}>
@@ -46,7 +48,6 @@ export default function App() {
             <Route path="/opportunities" element={<OpportunitiesPage />} />
             <Route path="/opportunities/:opportunityId" element={<OpportunityDetailPage />} />
             <Route path="/calendar" element={<StaffCalendarPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
           </Route>
 
           <Route element={<RoleRoute roles={['auditor']} />}>
@@ -62,6 +63,9 @@ export default function App() {
             <Route path="/auditor/profile" element={<AuditorProfilePage />} />
           </Route>
 
+          <Route element={<RoleRoute roles={['admin', 'operations', 'supervisor']} />}>
+            <Route path="/admin/team" element={<TeamPage />} />
+          </Route>
           <Route element={<RoleRoute roles={['admin']} />}>
             <Route path="/admin/users" element={<UsersPage />} />
             <Route path="/competencies" element={<CompetenciesPage />} />
@@ -74,4 +78,10 @@ export default function App() {
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
+}
+
+/** Inicio por rol: el auditor ve su centro de control personal; el staff el dashboard. */
+function HomeRouter() {
+  const { user } = useAuth()
+  return user?.role === 'auditor' ? <AuditorHomePage /> : <Dashboard />
 }

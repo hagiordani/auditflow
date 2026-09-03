@@ -137,6 +137,16 @@ export async function fetchEvolution(period = 30): Promise<EvolutionPoint[]> {
   return data
 }
 
+export interface TrendsResponse {
+  current: { created: number; assigned: number; finalized: number }
+  previous: { created: number; assigned: number; finalized: number }
+}
+
+export async function fetchTrends(period = 30): Promise<TrendsResponse> {
+  const { data } = await api.get<TrendsResponse>('/reports/trends', { params: { period } })
+  return data
+}
+
 export async function downloadOpportunitiesCsv(): Promise<void> {
   const response = await api.get('/reports/export.csv', { responseType: 'blob' })
   const url = URL.createObjectURL(response.data as Blob)

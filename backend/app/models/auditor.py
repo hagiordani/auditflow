@@ -14,6 +14,9 @@ COMPETENCY_LEVELS = ["Auditor", "Auditor líder", "Auditor técnico", "Especiali
 # Estados de disponibilidad del auditor
 AVAILABILITY_STATUSES = ["available", "busy", "unavailable"]
 
+# Tipo de auditor
+AUDITOR_TYPES = ["interno", "externo"]
+
 
 class Competency(Base):
     """Norma o especialidad en la que un auditor puede estar calificado (ISO 9001, ISO 14001…)."""
@@ -50,6 +53,11 @@ class Auditor(Base):
     availability_status: Mapped[str] = mapped_column(
         String(20), default="available"
     )  # available | busy | unavailable
+    auditor_type: Mapped[str] = mapped_column(
+        String(20), default="externo"
+    )  # interno | externo
+    specialty: Mapped[str | None] = mapped_column(String(120))  # cargo / especialidad
+    roles: Mapped[str | None] = mapped_column(String(200))  # roles separados por ';'
     rating: Mapped[float | None] = mapped_column()
     notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

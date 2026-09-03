@@ -6,13 +6,14 @@ import { useAuth } from '../context/AuthContext'
 
 const ADMIN_NAV: { to: string; label: string; icon: string }[] = [
   { to: '/opportunities', label: 'Oportunidades', icon: '▣' },
+  { to: '/admin/team', label: 'Equipo', icon: '♟' },
   { to: '/auditors', label: 'Auditores', icon: '♙' },
   { to: '/personal', label: 'Personal', icon: '☷' },
   { to: '/clients', label: 'Clientes', icon: '▤' },
   { to: '/admin/users', label: 'Usuarios', icon: '⚙' },
   { to: '/competencies', label: 'Competencias', icon: '✓' },
   { to: '/calendar', label: 'Calendario', icon: '◷' },
-  { to: '/reports', label: 'Reportes', icon: '▥' },
+  { to: '/profile/security', label: 'Configuración', icon: '⚙' },
 ]
 
 const NAV_BY_ROLE: Record<Role, { to: string; label: string; icon: string }[]> = {
@@ -30,10 +31,10 @@ const NAV_BY_ROLE: Record<Role, { to: string; label: string; icon: string }[]> =
 }
 
 const ROLE_LABELS: Record<Role, string> = {
-  admin: 'Administrador',
-  operations: 'Administrador',
+  admin: 'Gerente de Operaciones',
+  operations: 'Gerente de Operaciones',
   auditor: 'Auditor',
-  supervisor: 'Administrador',
+  supervisor: 'Gerente de Operaciones',
 }
 
 function initials(name: string): string {
@@ -47,6 +48,7 @@ export function AppLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+  const [collapsed, setCollapsed] = useState(false)
 
   if (!user) return null
   const links = [
@@ -81,7 +83,7 @@ export function AppLayout() {
             <span>⌕</span>
             <input
               type="search"
-              placeholder="Buscar oportunidades…"
+              placeholder="Buscar oportunidades, auditores, clientes…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -109,7 +111,7 @@ export function AppLayout() {
       </header>
 
       <div className="workspace">
-        <aside className="sidebar">
+        <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
           <div className="side-section">
             {links.map((link) => (
               <NavLink
@@ -117,12 +119,21 @@ export function AppLayout() {
                 to={link.to}
                 end={link.to === '/'}
                 className="side-link"
+                title={collapsed ? link.label : undefined}
               >
                 <span className="side-icon">{link.icon}</span>
-                {link.label}
+                <span className="side-label">{link.label}</span>
               </NavLink>
             ))}
           </div>
+          <button
+            type="button"
+            className="side-collapse"
+            onClick={() => setCollapsed((c) => !c)}
+          >
+            <span className="side-icon">{collapsed ? '»' : '«'}</span>
+            {!collapsed && <span className="side-label">Colapsar</span>}
+          </button>
         </aside>
         <main className="main">
           <Outlet />
