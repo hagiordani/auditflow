@@ -276,32 +276,3 @@ export interface StaffCalendarEvent {
   end_date: string
   status: string
 }
-
-export interface PersonRole {
-  id: number
-  nombre: string
-}
-
-export interface PersonnelArea {
-  id: number
-  codigo: string
-  nombre: string | null
-}
-
-export interface PersonalEmail {
-  id: number
-  email: string
-  principal: boolean
-}
-
-export interface Personal {
-  id: number
-  nombre_completo: string
-  celular: string | null
-  activo: boolean
-  roles: PersonRole[]
-  areas: PersonnelArea[]
-  emails: PersonalEmail[]
-  created_at: string
-  updated_at: string
-}

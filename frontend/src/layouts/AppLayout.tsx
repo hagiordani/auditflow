@@ -6,11 +6,8 @@ import { useAuth } from '../context/AuthContext'
 
 const ADMIN_NAV: { to: string; label: string; icon: string }[] = [
   { to: '/opportunities', label: 'Oportunidades', icon: '▣' },
-  { to: '/admin/team', label: 'Equipo', icon: '♟' },
-  { to: '/auditors', label: 'Auditores', icon: '♙' },
-  { to: '/personal', label: 'Personal', icon: '☷' },
+  { to: '/admin/team', label: 'Equipo', icon: '♙' },
   { to: '/clients', label: 'Clientes', icon: '▤' },
-  { to: '/admin/users', label: 'Usuarios', icon: '⚙' },
   { to: '/competencies', label: 'Competencias', icon: '✓' },
   { to: '/calendar', label: 'Calendario', icon: '◷' },
   { to: '/profile/security', label: 'Configuración', icon: '⚙' },
