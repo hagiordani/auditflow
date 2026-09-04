@@ -89,6 +89,38 @@ body {
   margin-top: 6px;
 }
 
+/* Mostrar / ocultar contraseña */
+.password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrap input {
+  padding-right: 46px;
+}
+
+.pw-toggle {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.pw-toggle:hover {
+  color: var(--text);
+  background: var(--primary-soft);
+}
+
 .login-foot {
   margin: 20px 0 0;
   text-align: center;
