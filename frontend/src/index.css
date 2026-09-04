@@ -4688,6 +4688,8 @@ textarea {
 .mk-modal {
   width: 440px;
   max-width: 92vw;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
   background: var(--surface);
   border-radius: 14px;
   padding: 22px 24px;
