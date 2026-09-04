@@ -12,7 +12,7 @@ from fastapi import HTTPException, status
 
 
 class LoginRateLimiter:
-    def __init__(self, max_failures: int = 10, window_seconds: int = 300):
+    def __init__(self, max_failures: int = 3, window_seconds: int = 300):
         self.max_failures = max_failures
         self.window_seconds = window_seconds
         self._failures: dict[str, deque] = defaultdict(deque)
