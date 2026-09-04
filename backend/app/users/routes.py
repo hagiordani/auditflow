@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.auth.dependencies import require_roles
 from app.auth.schemas import UserCreate, UserOut, UserUpdate
-from app.auth.security import hash_password
+from app.auth.security import generate_temp_password, hash_password
+from app.core.mailer import send_email
 from app.database import get_db
 from app.models.auditor import Auditor
 from app.models.user import User, UserRole
@@ -27,16 +28,46 @@ def create_user(
     email = payload.email.lower().strip()
     if db.query(User).filter(User.email == email).first():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El correo ya está registrado")
+
+    # Si el admin no define contraseña, se genera una temporal y se envía por correo.
+    temp_password = None
+    if payload.password is None:
+        temp_password = generate_temp_password()
+
     user = User(
         email=email,
         full_name=payload.full_name.strip(),
-        password_hash=hash_password(payload.password),
+        password_hash=hash_password(temp_password or payload.password),
         role=payload.role,
         is_active=payload.is_active,
+        must_change_password=temp_password is not None,
     )
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    if temp_password is not None:
+        send_email(
+            to=email,
+            subject="Bienvenido a AuditFlow — tu contraseña temporal",
+            text=(
+                f"Hola {user.full_name},\n\n"
+                f"Se ha creado tu cuenta en AuditFlow. Tu contraseña temporal es:\n\n"
+                f"    {temp_password}\n\n"
+                "Por seguridad, cámbiala al iniciar sesión (Menú → Configuración → Seguridad).\n\n"
+                "Plataforma privada de asignación de servicios de auditoría."
+            ),
+            html=(
+                "<p>Hola <strong>{}</strong>,</p>"
+                "<p>Se ha creado tu cuenta en <strong>AuditFlow</strong>. "
+                "Tu contraseña temporal es:</p>"
+                "<p style=\"font-size:20px;font-weight:700;letter-spacing:2px\">{}</p>"
+                "<p>Por seguridad, cámbiala al iniciar sesión "
+                "(Menú → Configuración → Seguridad).</p>"
+                "<p style=\"color:#70809a\">Plataforma privada de asignación de servicios de auditoría.</p>"
+            ).format(user.full_name, temp_password),
+        )
+
     return user
 
 

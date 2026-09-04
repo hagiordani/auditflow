@@ -1,11 +1,24 @@
 """Seguridad: hash de contraseñas y tokens JWT."""
 
+import secrets
+import string
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import jwt
 
 from app.config import get_settings
+
+
+def generate_temp_password(length: int = 10) -> str:
+    """Genera una contraseña temporal segura (letras + números, cumple la política)."""
+    letters = string.ascii_letters
+    digits = string.digits
+    pool = letters + digits
+    chars = [secrets.choice(letters), secrets.choice(digits)]
+    chars += [secrets.choice(pool) for _ in range(max(0, length - len(chars)))]
+    secrets.SystemRandom().shuffle(chars)
+    return "".join(chars)
 
 
 def hash_password(password: str) -> str:

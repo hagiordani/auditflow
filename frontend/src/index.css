@@ -625,6 +625,28 @@ select:focus {
   margin-bottom: 16px;
 }
 
+.alert.must-change-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: #fff7e6;
+  color: #8a5c00;
+  border: 1px solid #f0d9a8;
+  margin-top: 0;
+  margin-bottom: 18px;
+}
+
+.alert.must-change-banner .btn {
+  flex-shrink: 0;
+}
+
+.alert.must-change-banner .muted {
+  font-weight: 400;
+  color: #a87b2a;
+}
+
 .checkbox-row {
   display: flex;
   align-items: center;

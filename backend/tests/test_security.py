@@ -43,13 +43,13 @@ def test_password_change_requires_strong_password(client):
 
 
 def test_login_rate_limit_after_failures(client):
-    for _ in range(10):
+    for _ in range(3):
         r = client.post(
             "/api/auth/login",
             json={"email": "admin@test.local", "password": "clave-incorrecta"},
         )
         assert r.status_code == 401
-    # El undécimo intento (fallido) ya está bloqueado por rate limit
+    # El cuarto intento (fallido) ya está bloqueado por rate limit (máx. 3)
     r = client.post(
         "/api/auth/login",
         json={"email": "admin@test.local", "password": "clave-incorrecta"},

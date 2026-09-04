@@ -57,5 +57,6 @@ def change_password(
             detail="La nueva contraseña debe ser diferente a la actual",
         )
     user.password_hash = hash_password(payload.new_password)
+    user.must_change_password = False
     db.commit()
     return {"message": "Contraseña actualizada correctamente"}

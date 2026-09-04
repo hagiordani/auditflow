@@ -21,6 +21,7 @@ class UserOut(BaseModel):
     full_name: str
     role: UserRole
     is_active: bool
+    must_change_password: bool = False
     created_at: datetime
 
 
@@ -33,7 +34,8 @@ class TokenResponse(BaseModel):
 class UserCreate(BaseModel):
     email: Email
     full_name: str = Field(min_length=2, max_length=255)
-    password: Password
+    # Si se omite la contraseña, se genera una temporal y se envía por correo.
+    password: Password | None = None
     role: UserRole
     is_active: bool = True
 

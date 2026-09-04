@@ -31,6 +31,16 @@ class Settings(BaseSettings):
     ADMIN_PASSWORD: str = "Admin123!"
     ADMIN_NAME: str = "Administrador"
 
+    # --- Correo (SMTP) para envío de contraseñas temporales / notificaciones ---
+    # Si SMTP_HOST está vacío, el mailer registra el contenido en logs (dev).
+    SMTP_HOST: str | None = None
+    SMTP_PORT: int = 587
+    SMTP_USER: str | None = None
+    SMTP_PASSWORD: str | None = None
+    SMTP_FROM: str = "AuditFlow <no-reply@auditflow.local>"
+    SMTP_STARTTLS: bool = True
+    SMTP_USE_SSL: bool = False
+
 
 @lru_cache
 def get_settings() -> Settings:

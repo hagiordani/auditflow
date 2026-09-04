@@ -146,6 +146,19 @@ export function AppLayout() {
           </button>
         </aside>
         <main className="main">
+          {user.must_change_password && (
+            <div className="alert must-change-banner" role="alert">
+              <div>
+                <strong>Cambia tu contraseña por seguridad.</strong>
+                <span className="muted">
+                  {' '}Has iniciado con una contraseña temporal.
+                </span>
+              </div>
+              <NavLink to="/profile/security" className="btn btn-primary btn-sm">
+                Cambiar contraseña
+              </NavLink>
+            </div>
+          )}
           <Outlet />
         </main>
       </div>
