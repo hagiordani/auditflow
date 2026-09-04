@@ -46,6 +46,8 @@ export function AppLayout() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [collapsed, setCollapsed] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const closeDrawer = () => setDrawerOpen(false)
 
   if (!user) return null
   const links = [
@@ -70,6 +72,15 @@ export function AppLayout() {
   return (
     <div className="app-shell">
       <header className="topbar">
+        <button
+          type="button"
+          className="menu-toggle"
+          onClick={() => setDrawerOpen(true)}
+          aria-label="Abrir menú"
+        >
+          ☰
+        </button>
+
         <div className="brand">
           <span className="brand-mark">✓</span>
           <span className="brand-name">AuditFlow</span>
@@ -108,7 +119,8 @@ export function AppLayout() {
       </header>
 
       <div className="workspace">
-        <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
+        {drawerOpen && <div className="sidebar-backdrop" onClick={closeDrawer} />}
+        <aside className={`sidebar ${collapsed ? 'collapsed' : ''} ${drawerOpen ? 'drawer-open' : ''}`}>
           <div className="side-section">
             {links.map((link) => (
               <NavLink
@@ -117,6 +129,7 @@ export function AppLayout() {
                 end={link.to === '/'}
                 className="side-link"
                 title={collapsed ? link.label : undefined}
+                onClick={closeDrawer}
               >
                 <span className="side-icon">{link.icon}</span>
                 <span className="side-label">{link.label}</span>
