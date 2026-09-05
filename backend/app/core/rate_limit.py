@@ -10,6 +10,8 @@ from collections import defaultdict, deque
 
 from fastapi import HTTPException, status
 
+from app.config import get_settings
+
 
 class LoginRateLimiter:
     def __init__(self, max_failures: int = 3, window_seconds: int = 300):
@@ -48,3 +50,32 @@ class LoginRateLimiter:
 
 
 login_limiter = LoginRateLimiter()
+
+
+class SlidingWindowLimiter:
+    """Límite general de peticiones por IP en una ventana deslizante (SEC-17)."""
+
+    def __init__(self, limit: int, window_seconds: int = 60):
+        self.limit = limit
+        self.window = window_seconds
+        self._calls: dict[str, deque] = defaultdict(deque)
+
+    def allow(self, ip: str) -> bool:
+        now = time.monotonic()
+        dq = self._calls[ip]
+        while dq and now - dq[0] > self.window:
+            dq.popleft()
+        if len(dq) >= self.limit:
+            return False
+        dq.append(now)
+        return True
+
+    def reset(self, ip: str | None = None) -> None:
+        if ip is None:
+            self._calls.clear()
+        else:
+            self._calls.pop(ip, None)
+
+
+_settings = get_settings()
+api_limiter = SlidingWindowLimiter(limit=_settings.RATE_LIMIT_PER_MINUTE, window_seconds=60)

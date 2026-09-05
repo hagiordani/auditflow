@@ -24,6 +24,9 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:8080"]
 
+    # Límite general de peticiones de API por IP (por minuto)
+    RATE_LIMIT_PER_MINUTE: int = 300
+
     # Almacenamiento local de documentos (en producción usar volumen privado)
     UPLOAD_DIR: str = "./uploads"
 

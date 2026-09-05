@@ -2,8 +2,10 @@
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.core.rate_limit import api_limiter
 
 from app.applications.routes import router as applications_router
 from app.assignments.routes import router as assignments_router
@@ -66,6 +68,28 @@ async def security_headers(request, call_next):
     response.headers.setdefault("X-Frame-Options", "DENY")
     response.headers.setdefault("Referrer-Policy", "no-referrer")
     return response
+
+
+@app.middleware("http")
+async def api_rate_limit(request: Request, call_next):
+    # Límite general de API por IP (SEC-17). Exime health/docs y entornos de prueba/local.
+    path = request.url.path
+    if not path.startswith("/api/") or path.startswith(("/api/health", "/api/docs", "/api/openapi.json")):
+        return await call_next(request)
+    # La IP real viaja en X-Forwarded-For (la API está detrás de nginx).
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        ip = forwarded.split(",")[0].strip()
+    else:
+        ip = request.client.host if request.client else "unknown"
+    if ip in ("testclient", "testserver", "127.0.0.1", "::1", "localhost"):
+        return await call_next(request)
+    if not api_limiter.allow(ip):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Demasiadas peticiones. Inténtalo en un momento.",
+        )
+    return await call_next(request)
 
 app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
