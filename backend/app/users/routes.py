@@ -14,6 +14,29 @@ from app.models.user import User, UserRole
 router = APIRouter(prefix="/users", tags=["users"])
 
 
+def _send_temp_password_email(full_name: str, email: str, temp_password: str) -> None:
+    """Envía la contraseña temporal por correo (alta o restablecimiento)."""
+    send_email(
+        to=email,
+        subject="AuditFlow — tu contraseña temporal",
+        text=(
+            f"Hola {full_name},\n\n"
+            f"Tu contraseña temporal de acceso es:\n\n"
+            f"    {temp_password}\n\n"
+            "Por seguridad, cámbiala al iniciar sesión (Menú → Configuración → Seguridad).\n\n"
+            "Plataforma privada de asignación de servicios de auditoría."
+        ),
+        html=(
+            "<p>Hola <strong>{}</strong>,</p>"
+            "<p>Tu contraseña temporal de acceso es:</p>"
+            "<p style=\"font-size:20px;font-weight:700;letter-spacing:2px\">{}</p>"
+            "<p>Por seguridad, cámbiala al iniciar sesión "
+            "(Menú → Configuración → Seguridad).</p>"
+            "<p style=\"color:#70809a\">Plataforma privada de asignación de servicios de auditoría.</p>"
+        ).format(full_name, temp_password),
+    )
+
+
 @router.get("", response_model=list[UserOut])
 def list_users(db: Session = Depends(get_db), _: User = Depends(require_roles(UserRole.admin))):
     return db.query(User).order_by(User.created_at.desc()).all()
@@ -47,26 +70,7 @@ def create_user(
     db.refresh(user)
 
     if temp_password is not None:
-        send_email(
-            to=email,
-            subject="Bienvenido a AuditFlow — tu contraseña temporal",
-            text=(
-                f"Hola {user.full_name},\n\n"
-                f"Se ha creado tu cuenta en AuditFlow. Tu contraseña temporal es:\n\n"
-                f"    {temp_password}\n\n"
-                "Por seguridad, cámbiala al iniciar sesión (Menú → Configuración → Seguridad).\n\n"
-                "Plataforma privada de asignación de servicios de auditoría."
-            ),
-            html=(
-                "<p>Hola <strong>{}</strong>,</p>"
-                "<p>Se ha creado tu cuenta en <strong>AuditFlow</strong>. "
-                "Tu contraseña temporal es:</p>"
-                "<p style=\"font-size:20px;font-weight:700;letter-spacing:2px\">{}</p>"
-                "<p>Por seguridad, cámbiala al iniciar sesión "
-                "(Menú → Configuración → Seguridad).</p>"
-                "<p style=\"color:#70809a\">Plataforma privada de asignación de servicios de auditoría.</p>"
-            ).format(user.full_name, temp_password),
-        )
+        _send_temp_password_email(user.full_name, email, temp_password)
 
     return user
 
@@ -96,3 +100,21 @@ def update_user(
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.post("/{user_id}/reset-password", status_code=status.HTTP_204_NO_CONTENT)
+def reset_user_password(
+    user_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_roles(UserRole.admin)),
+):
+    """Genera una nueva contraseña temporal y la envía por correo (recuperación)."""
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+
+    temp_password = generate_temp_password()
+    user.password_hash = hash_password(temp_password)
+    user.must_change_password = True
+    db.commit()
+    _send_temp_password_email(user.full_name, user.email, temp_password)

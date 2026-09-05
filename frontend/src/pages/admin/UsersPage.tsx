@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { createUser, fetchUsers, updateUser } from '../../api/auth'
+import { createUser, fetchUsers, resetPassword, updateUser } from '../../api/auth'
 import { getErrorMessage } from '../../api/client'
 import type { Role, User } from '../../api/types'
 import { useAuth } from '../../context/AuthContext'
@@ -27,6 +27,7 @@ export function UsersPage() {
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
   const [sendEmail, setSendEmail] = useState(false)
+  const [notice, setNotice] = useState('')
 
   const load = () => {
     setLoading(true)
@@ -55,6 +56,18 @@ export function UsersPage() {
     try {
       const updated = await updateUser(user.id, { role: newRole })
       setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)))
+    } catch (err) {
+      setError(getErrorMessage(err))
+    }
+  }
+
+  const handleResetPassword = async (user: User) => {
+    setError('')
+    setNotice('')
+    if (!window.confirm(`¿Restablecer la contraseña de ${user.email} y enviarla por correo?`)) return
+    try {
+      await resetPassword(user.id)
+      setNotice(`Contraseña temporal enviada a ${user.email}.`)
     } catch (err) {
       setError(getErrorMessage(err))
     }
@@ -160,6 +173,7 @@ export function UsersPage() {
           <h3>Usuarios registrados ({users.length})</h3>
           {loading && <p className="muted">Cargando…</p>}
           {error && <div className="alert alert-error">{error}</div>}
+          {notice && <div className="alert alert-success">{notice}</div>}
           {!loading && !error && (
             <table className="table">
               <thead>
@@ -211,6 +225,14 @@ export function UsersPage() {
                           onClick={() => toggleActive(u)}
                         >
                           {u.is_active ? 'Desactivar' : 'Activar'}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-ghost"
+                          title="Generar una contraseña temporal y enviarla por correo"
+                          onClick={() => handleResetPassword(u)}
+                        >
+                          Restablecer
                         </button>
                       </div>
                     </td>

@@ -41,3 +41,7 @@ export async function updateUser(
 export async function changePassword(current_password: string, new_password: string): Promise<void> {
   await api.post('/auth/change-password', { current_password, new_password })
 }
+
+export async function resetPassword(id: number): Promise<void> {
+  await api.post(`/users/${id}/reset-password`)
+}
