@@ -27,6 +27,10 @@ npm-debug.log*
 .env.*.local
 !.env.example
 
+# Secretos / notas personales (contienen credenciales)
+Notas.txt
+*.secret
+
 # IDE / SO
 .vscode/
 .idea/
