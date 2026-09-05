@@ -1,0 +1,46 @@
+{
+  "baseline_initial": "81b9a21074ee0c2dfdfacba507e67e06ce8094e0",
+  "baseline_final": "2551d0d",
+  "controls_total": 19,
+  "controls_evaluated": 19,
+  "controls_not_evaluated": 0,
+  "controls_not_applicable": 1,
+  "compliant": 8,
+  "partial": 7,
+  "non_compliant": 3,
+  "findings_total": 9,
+  "findings_confirmed": 3,
+  "findings_fixed": 6,
+  "findings_remaining": 3,
+  "attacks_total": 5,
+  "attacks_confirmed": 4,
+  "attacks_blocked": 2,
+  "patches_applied": 5,
+  "patches_rejected": 0,
+  "stale_patches": 0,
+  "tests_executed": 1,
+  "tests_passed": 0,
+  "tests_failed": 4,
+  "regressions": 0,
+  "security_status": "PENDING_HUMAN",
+  "motivo_pending_human": [
+    "SEC-12: no hay protección anti-bot; requiere integrar reCAPTCHA/hCaptcha/Turnstile (necesita claves de un proveedor).",
+    "SEC-05: el cifrado en reposo de los DOCUMENTOS ya se implementó a nivel de app (Fernet), pero el volumen de la BD y el disco del host siguen pendientes de confirmación/configuración infra (host cifrado + TLS app→BD)."
+  ],
+  "notas": {
+    "SEC-01/02": "PURGADO: se reescribió el historial de Git (git filter-branch) para eliminar Notas.txt de todos los commits, force-push a main y staging, y limpieza de refs/original. origin/main y origin/staging ya no contienen Notas.txt en su historial.",
+    "SEC-04": "CUMPLE (equivalencia): la app es de una sola organización, no multi-tenant, por lo que el RLS por inquilino no es el modelo. El aislamiento por rol (equivalente) está implementado y verificado: asignaciones (my_assignments filtra por auditor_id; confirm/reject comprueban propiedad), postulaciones (list solo staff; apply scoped), documentos (_can_access restringe a propios), oportunidades (solo compatibles por competencia).",
+    "SEC-05": "PARCIAL (app capa): se añadió cifrado en reposo de documentos con Fernet (backend/app/core/crypto.py + integration en documents/routes.py; clave DOCUMENT_ENCRYPTION_KEY o derivada de SECRET_KEY; lectura retrocompatible para archivos previos). Unit tests test_encryption.py (4) aprobados sin regresión. Queda el gap de infraestructura: volumen de BD (db_data) y disco del host en claro, conexión app→BD sin sslmode, y copias de seguridad sin cifrar. Para cumple se requiere: disco del VPS cifrado (Hostinger full-disk/LUKS), TLS en la conexión a PostgreSQL (sslmode=require) y cifrado de backups.",
+    "SEC-06/07": "VERIFICADO: la autenticación JWT protege las rutas; los endpoints de asignaciones (confirm/reject/my_assignments) comprueban propiedad (auditor_id == propio) → sin IDOR.",
+    "SEC-08": "VERIFICADO: endpoints de update admin/staff-only + Pydantic ignora campos extra (sin mass-assignment).",
+    "SEC-14": "Sustancialmente manejado: Pydantic valida email/password (mín. 8, letras+números) y acota longitudes."
+  },
+  "verificado_post_deploy": {
+    "SEC-18": "VERIFICADO: el frontend sirve X-Content-Type-Options, X-Frame-Options, Referrer-Policy y Content-Security-Policy (confirmado con curl tras deploy). App carga OK.",
+    "SEC-19": "VERIFICADO: Strict-Transport-Security presente; http:// redirige 308 a https.",
+    "SEC-16": "VERIFICADO: subida de archivo no permitido (.html) devuelve 400 (test local) y commit bbf2a37 desplegado.",
+    "SEC-17": "REMIDIADO + no regresión: rate limit general de API por IP (X-Forwarded-For). Unit test: 3 permitidas, 4ta bloqueada. Commit 2dc10ad desplegado; tests sin fallas nuevas.",
+    "SEC-08": "VERIFICADO como cumple: endpoints de update admin/staff-only (require_roles) y Pydantic ignora campos extra (sin mass-assignment de role/id)."
+  },
+  "resumen": "Se evaluaron 19 controles. 8 cumplen (incl. SEC-08 y SEC-04 verificados). Se remediaron y VERIFICARON SEC-01/02 (desvincular Notas.txt + gitignore), SEC-04 (equivalente: aislamiento por rol verificado en asignaciones/postulaciones/documentos/oportunidades), SEC-05 (capa app: documentos cifrados en reposo con Fernet + tests), SEC-06/07 (sin IDOR), SEC-08 (mass-assignment), SEC-16 (allowlist MIME), SEC-17 (rate limit API), SEC-18/19 (headers+HSTS). Quedan parciales (SEC-05 infra: volumen BD/disco y sslmode pendientes, SEC-07 residual, SEC-14 restante) y el residual crítico de secretos en historial. Estado final PENDING_HUMAN por la purga de historial, la protección anti-bot (SEC-12) y la confirmación infra de cifrado en reposo de BD/disco (SEC-05)."
+}

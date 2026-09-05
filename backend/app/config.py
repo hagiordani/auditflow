@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     # Almacenamiento local de documentos (en producción usar volumen privado)
     UPLOAD_DIR: str = "./uploads"
 
+    # (SEC-05) Cifrado en reposo de documentos. Clave Fernet (32 bytes urlsafe-b64).
+    # Si está vacía, se deriva de SECRET_KEY (sha256). En producción conviene
+    # definir una clave explícita e independiente y rotarla sin perder los archivos.
+    DOCUMENT_ENCRYPTION_KEY: str | None = None
+
     ADMIN_EMAIL: str = "admin@auditflow.local"
     ADMIN_PASSWORD: str = "Admin123!"
     ADMIN_NAME: str = "Administrador"

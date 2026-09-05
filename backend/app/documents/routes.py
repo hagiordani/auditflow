@@ -4,13 +4,15 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from fastapi.responses import FileResponse
+from urllib.parse import quote
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile, status
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_user
 from app.config import get_settings
+from app.core.crypto import decrypt_bytes_or_raw, encrypt_bytes
 from app.database import get_db
 from app.models.auditor import Auditor
 from app.models.document import DOCUMENT_TYPES, ENTITY_TYPES, Document
@@ -141,8 +143,9 @@ async def upload_document(
     upload_dir = Path(settings.UPLOAD_DIR)
     upload_dir.mkdir(parents=True, exist_ok=True)
 
+    # (SEC-05) Se cifra en reposo antes de escribir en disco.
     stored_name = f"{uuid.uuid4().hex}{ext}"
-    (upload_dir / stored_name).write_bytes(content)
+    (upload_dir / stored_name).write_bytes(encrypt_bytes(content))
 
     document = Document(
         entity_type=entity_type,
@@ -193,8 +196,12 @@ def download_document(
     path = Path(settings.UPLOAD_DIR) / document.stored_name
     if not path.exists():
         raise HTTPException(status_code=404, detail="El archivo ya no existe en el servidor")
-    return FileResponse(
-        path,
+    # (SEC-05) Se descifra en memoria; los archivos anteriores (en claro) siguen leyéndose.
+    raw = decrypt_bytes_or_raw(path.read_bytes())
+    return Response(
+        content=raw,
         media_type=document.content_type or "application/octet-stream",
-        filename=document.file_name,
+        headers={
+            "Content-Disposition": f"attachment; filename*=UTF-8''{quote(document.file_name)}"
+        },
     )

@@ -8,6 +8,8 @@ bcrypt>=4.2,<5.0
 PyJWT>=2.10,<3.0
 psycopg[binary]>=3.2,<4.0
 python-multipart>=0.0.12
+# (SEC-05) Cifrado en reposo de documentos (Fernet)
+cryptography>=43,<45
 
 # Tests
 pytest>=8.3,<9.0
