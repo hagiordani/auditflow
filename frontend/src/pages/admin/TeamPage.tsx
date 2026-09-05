@@ -413,12 +413,17 @@ function AddMemberWizard({ onClose, onDone }: { onClose: () => void; onDone: () 
   const choose = (t: 'auditor' | 'admin') => { setType(t) }
 
   const submit = async () => {
-    setSaving(true); setErr('')
+    setErr('')
+    const name = form.full_name.trim()
+    if (name.length < 2) { setErr('Completa el nombre completo (mín. 2 caracteres).'); return }
+    if (!form.email.trim()) { setErr('Completa el correo electrónico.'); return }
+    if (!form.password) { setErr('Completa la contraseña (mín. 8 caracteres con letras y números).'); return }
+    setSaving(true)
     try {
       if (type === 'admin') {
-        await createUser({ email: form.email.trim(), full_name: form.full_name.trim(), password: form.password, role: 'admin' })
+        await createUser({ email: form.email.trim(), full_name: name, password: form.password, role: 'admin' })
       } else {
-        await createAuditor({ email: form.email.trim(), full_name: form.full_name.trim(), password: form.password, phone: form.phone.trim() || null, auditor_type: form.auditor_type, specialty: form.specialty.trim() || null, roles: form.roles || null, city: form.city.trim() || null, state: form.state.trim() || null })
+        await createAuditor({ email: form.email.trim(), full_name: name, password: form.password, phone: form.phone.trim() || null, auditor_type: form.auditor_type, specialty: form.specialty.trim() || null, roles: form.roles || null, city: form.city.trim() || null, state: form.state.trim() || null })
       }
       onDone()
     } catch (e) { setErr(getErrorMessage(e)) } finally { setSaving(false) }
