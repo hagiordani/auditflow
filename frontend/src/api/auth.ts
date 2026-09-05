@@ -19,7 +19,8 @@ export async function fetchUsers(): Promise<User[]> {
 export interface CreateUserInput {
   email: string
   full_name: string
-  password: string
+  // `null` → el backend genera una contraseña temporal y la envía por correo.
+  password: string | null
   role: Role
   is_active?: boolean
 }

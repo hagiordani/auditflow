@@ -26,6 +26,7 @@ export function UsersPage() {
   const [form, setForm] = useState(EMPTY_FORM)
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [sendEmail, setSendEmail] = useState(false)
 
   const load = () => {
     setLoading(true)
@@ -64,8 +65,14 @@ export function UsersPage() {
     setFormError('')
     setSaving(true)
     try {
-      await createUser({ ...form, email: form.email.trim(), full_name: form.full_name.trim() })
+      await createUser({
+        email: form.email.trim(),
+        full_name: form.full_name.trim(),
+        password: sendEmail ? null : form.password,
+        role: form.role,
+      })
       setForm(EMPTY_FORM)
+      setSendEmail(false)
       load()
     } catch (err) {
       setFormError(getErrorMessage(err))
@@ -105,15 +112,28 @@ export function UsersPage() {
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
 
-            <label htmlFor="password">Contraseña (mín. 8 caracteres)</label>
-            <input
-              id="password"
-              type="password"
-              required
-              minLength={8}
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-            />
+            <label className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={sendEmail}
+                onChange={(e) => setSendEmail(e.target.checked)}
+              />
+              <span>Enviar contraseña temporal por correo</span>
+            </label>
+
+            {!sendEmail && (
+              <>
+                <label htmlFor="password">Contraseña (mín. 8 caracteres)</label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  minLength={8}
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                />
+              </>
+            )}
 
             <label htmlFor="role">Rol</label>
             <select
