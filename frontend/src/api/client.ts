@@ -31,7 +31,17 @@ api.interceptors.response.use(
 export function getErrorMessage(error: unknown): string {
   if (typeof error === 'object' && error !== null && 'response' in error) {
     const response = (error as { response?: { data?: { detail?: unknown } } }).response
-    if (response?.data?.detail) return String(response.data.detail)
+    const detail = response?.data?.detail
+    if (detail !== undefined && detail !== null) {
+      if (typeof detail === 'string') return detail
+      if (Array.isArray(detail)) {
+        const msgs = detail
+          .map((d) => (typeof d === 'object' && d !== null && 'msg' in d ? String((d as { msg: unknown }).msg) : String(d)))
+          .filter(Boolean)
+        return msgs.join(' · ') || 'Datos inválidos.'
+      }
+      if (typeof detail === 'object') return JSON.stringify(detail)
+    }
   }
   if (error instanceof Error && error.message) return error.message
   return 'Ocurrió un error inesperado. Inténtalo de nuevo.'
