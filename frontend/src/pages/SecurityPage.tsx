@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { changePassword } from '../api/auth'
 import { getErrorMessage } from '../api/client'
+import { PasswordInput } from '../components/PasswordInput'
 
 export function SecurityPage() {
   const [current, setCurrent] = useState('')
@@ -41,35 +42,32 @@ export function SecurityPage() {
         <h3>Cambiar contraseña</h3>
         <form onSubmit={handleSubmit} className="form">
           <label htmlFor="sec-current">Contraseña actual</label>
-          <input
+          <PasswordInput
             id="sec-current"
-            type="password"
-            required
-            autoComplete="current-password"
             value={current}
-            onChange={(e) => setCurrent(e.target.value)}
+            onChange={setCurrent}
+            autoComplete="current-password"
+            required
           />
 
           <label htmlFor="sec-next">Nueva contraseña (mín. 8 caracteres)</label>
-          <input
+          <PasswordInput
             id="sec-next"
-            type="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
             value={next}
-            onChange={(e) => setNext(e.target.value)}
+            onChange={setNext}
+            autoComplete="new-password"
+            minLength={8}
+            required
           />
 
           <label htmlFor="sec-confirm">Confirmar nueva contraseña</label>
-          <input
+          <PasswordInput
             id="sec-confirm"
-            type="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
             value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
+            onChange={setConfirm}
+            autoComplete="new-password"
+            minLength={8}
+            required
           />
 
           {error && <div className="alert alert-error">{error}</div>}
