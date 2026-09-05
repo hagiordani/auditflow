@@ -24,6 +24,9 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:8080"]
 
+    # URL pública del frontend (para los enlaces en correos, p. ej. contraseña temporal)
+    FRONTEND_URL: str = "https://auditflow.hcar.cloud"
+
     # Límite general de peticiones de API por IP (por minuto)
     RATE_LIMIT_PER_MINUTE: int = 300
 

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.auth.dependencies import require_roles
 from app.auth.schemas import UserCreate, UserOut, UserUpdate
 from app.auth.security import generate_temp_password, hash_password
+from app.config import get_settings
 from app.core.mailer import send_email
 from app.database import get_db
 from app.models.auditor import Auditor
@@ -16,6 +17,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 def _send_temp_password_email(full_name: str, email: str, temp_password: str) -> None:
     """Envía la contraseña temporal por correo (alta o restablecimiento)."""
+    login_url = f"{get_settings().FRONTEND_URL.rstrip('/')}/login"
     send_email(
         to=email,
         subject="AuditFlow — tu contraseña temporal",
@@ -23,6 +25,7 @@ def _send_temp_password_email(full_name: str, email: str, temp_password: str) ->
             f"Hola {full_name},\n\n"
             f"Tu contraseña temporal de acceso es:\n\n"
             f"    {temp_password}\n\n"
+            f"Ingresa aquí: {login_url}\n\n"
             "Por seguridad, cámbiala al iniciar sesión (Menú → Configuración → Seguridad).\n\n"
             "Plataforma privada de asignación de servicios de auditoría."
         ),
@@ -30,10 +33,12 @@ def _send_temp_password_email(full_name: str, email: str, temp_password: str) ->
             "<p>Hola <strong>{}</strong>,</p>"
             "<p>Tu contraseña temporal de acceso es:</p>"
             "<p style=\"font-size:20px;font-weight:700;letter-spacing:2px\">{}</p>"
+            "<p>Ingresa con el siguiente enlace:</p>"
+            "<p><a href=\"{}\" style=\"color:#145da0;font-weight:600\">{}</a></p>"
             "<p>Por seguridad, cámbiala al iniciar sesión "
             "(Menú → Configuración → Seguridad).</p>"
             "<p style=\"color:#70809a\">Plataforma privada de asignación de servicios de auditoría.</p>"
-        ).format(full_name, temp_password),
+        ).format(full_name, temp_password, login_url, login_url),
     )
 
 
