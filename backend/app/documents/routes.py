@@ -22,6 +22,27 @@ router = APIRouter(prefix="/documents", tags=["documents"])
 STAFF = (UserRole.admin, UserRole.operations)
 MAX_SIZE = 15 * 1024 * 1024  # 15 MB
 
+# (SEC-16) Tipos de archivo permitidos para subida (extensiones + MIME declarado).
+ALLOWED_UPLOAD_EXTENSIONS = {
+    ".pdf", ".png", ".jpg", ".jpeg",
+    ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
+    ".txt", ".csv",
+}
+ALLOWED_UPLOAD_CONTENT_TYPES = {
+    "application/pdf",
+    "image/png",
+    "image/jpeg",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/octet-stream",  # algunos clientes lo envían para binarios
+    "text/plain",
+    "text/csv",
+}
+
 
 class DocumentOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -89,6 +110,12 @@ async def upload_document(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
+    # (SEC-16) Validar tipo de archivo permitido (extensión + MIME declarado)
+    ext = Path(file.filename or "archivo").suffix.lower()[:10]
+    declared = (file.content_type or "").split(";")[0].strip().lower()
+    if ext not in ALLOWED_UPLOAD_EXTENSIONS or declared not in ALLOWED_UPLOAD_CONTENT_TYPES:
+        raise HTTPException(status_code=400, detail="Tipo de archivo no permitido")
+
     if entity_type not in ENTITY_TYPES:
         raise HTTPException(status_code=400, detail="Tipo de entidad no válido")
     if document_type not in DOCUMENT_TYPES:
@@ -114,7 +141,6 @@ async def upload_document(
     upload_dir = Path(settings.UPLOAD_DIR)
     upload_dir.mkdir(parents=True, exist_ok=True)
 
-    ext = Path(file.filename or "archivo").suffix.lower()[:10]
     stored_name = f"{uuid.uuid4().hex}{ext}"
     (upload_dir / stored_name).write_bytes(content)
 
